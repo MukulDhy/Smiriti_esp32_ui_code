@@ -39,12 +39,30 @@ void ui_screen_alertpage_screen_init(void)
     ui_alertpage_label_label8 = lv_label_create(ui_screen_alertpage);
     lv_obj_set_width(ui_alertpage_label_label8, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_alertpage_label_label8, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_alertpage_label_label8, 0);
-    lv_obj_set_y(ui_alertpage_label_label8, -61);
+    lv_obj_set_x(ui_alertpage_label_label8, -4);
+    lv_obj_set_y(ui_alertpage_label_label8, -57);
     lv_obj_set_align(ui_alertpage_label_label8, LV_ALIGN_CENTER);
     lv_label_set_text(ui_alertpage_label_label8, "Alert Page");
     lv_obj_set_style_text_color(ui_alertpage_label_label8, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_alertpage_label_label8, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_alertpage_panel_panel2 = lv_obj_create(ui_screen_alertpage);
+    lv_obj_set_width(ui_alertpage_panel_panel2, 195);
+    lv_obj_set_height(ui_alertpage_panel_panel2, 82);
+    lv_obj_set_x(ui_alertpage_panel_panel2, 1);
+    lv_obj_set_y(ui_alertpage_panel_panel2, 5);
+    lv_obj_set_align(ui_alertpage_panel_panel2, LV_ALIGN_CENTER);
+    lv_obj_set_scroll_dir(ui_alertpage_panel_panel2, LV_DIR_TOP);
+    lv_obj_set_scroll_snap_y(ui_alertpage_panel_panel2, LV_SCROLL_SNAP_START);
+
+    ui_alertpage_label_label19 = lv_label_create(ui_alertpage_panel_panel2);
+    lv_obj_set_width(ui_alertpage_label_label19, 156);
+    lv_obj_set_height(ui_alertpage_label_label19, 89);
+    lv_obj_set_x(ui_alertpage_label_label19, -4);
+    lv_obj_set_y(ui_alertpage_label_label19, 14);
+    lv_obj_set_align(ui_alertpage_label_label19, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_alertpage_label_label19,
+                      "textdakjdaklwdlalwdjalwdlawdlawldnkajwndljanwdlnawldnlawndlkawndlkawnldnwalkdnlawndlkanwdlknalwkdnawlkkdnawdnawlkdnlawd");
 
     lv_obj_add_event_cb(ui_alertpage_panel_backpannel3, ui_event_alertpage_panel_backpannel3, LV_EVENT_ALL, NULL);
 

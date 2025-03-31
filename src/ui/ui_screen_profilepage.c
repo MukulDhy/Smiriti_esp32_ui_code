@@ -39,12 +39,63 @@ void ui_screen_profilepage_screen_init(void)
     ui_profilepage_label_label9 = lv_label_create(ui_screen_profilepage);
     lv_obj_set_width(ui_profilepage_label_label9, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_profilepage_label_label9, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_profilepage_label_label9, 0);
-    lv_obj_set_y(ui_profilepage_label_label9, -61);
+    lv_obj_set_x(ui_profilepage_label_label9, 1);
+    lv_obj_set_y(ui_profilepage_label_label9, -58);
     lv_obj_set_align(ui_profilepage_label_label9, LV_ALIGN_CENTER);
     lv_label_set_text(ui_profilepage_label_label9, "Profile Page");
     lv_obj_set_style_text_color(ui_profilepage_label_label9, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_profilepage_label_label9, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_profilepage_image_image2 = lv_image_create(ui_screen_profilepage);
+    lv_image_set_src(ui_profilepage_image_image2, &ui_img_profile_png);
+    lv_obj_set_width(ui_profilepage_image_image2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_image_image2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_image_image2, -70);
+    lv_obj_set_y(ui_profilepage_image_image2, -9);
+    lv_obj_set_align(ui_profilepage_image_image2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_profilepage_image_image2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_profilepage_image_image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_profilepage_container_container1 = lv_obj_create(ui_screen_profilepage);
+    lv_obj_remove_style_all(ui_profilepage_container_container1);
+    lv_obj_set_width(ui_profilepage_container_container1, 121);
+    lv_obj_set_height(ui_profilepage_container_container1, 98);
+    lv_obj_set_x(ui_profilepage_container_container1, 31);
+    lv_obj_set_y(ui_profilepage_container_container1, 10);
+    lv_obj_set_align(ui_profilepage_container_container1, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_profilepage_container_container1, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_profilepage_label_label15 = lv_label_create(ui_profilepage_container_container1);
+    lv_obj_set_width(ui_profilepage_label_label15, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label15, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label15, -25);
+    lv_obj_set_y(ui_profilepage_label_label15, 1);
+    lv_obj_set_align(ui_profilepage_label_label15, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label15, "Device ID:");
+
+    ui_profilepage_label_label16 = lv_label_create(ui_profilepage_container_container1);
+    lv_obj_set_width(ui_profilepage_label_label16, 83);
+    lv_obj_set_height(ui_profilepage_label_label16, 32);
+    lv_obj_set_x(ui_profilepage_label_label16, 35);
+    lv_obj_set_y(ui_profilepage_label_label16, -33);
+    lv_obj_set_align(ui_profilepage_label_label16, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label16, "Mukul Dahiya");
+
+    ui_profilepage_label_label17 = lv_label_create(ui_profilepage_container_container1);
+    lv_obj_set_width(ui_profilepage_label_label17, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label17, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label17, -35);
+    lv_obj_set_y(ui_profilepage_label_label17, -41);
+    lv_obj_set_align(ui_profilepage_label_label17, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label17, "Name: ");
+
+    ui_profilepage_label_label18 = lv_label_create(ui_screen_profilepage);
+    lv_obj_set_width(ui_profilepage_label_label18, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label18, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label18, 65);
+    lv_obj_set_y(ui_profilepage_label_label18, 11);
+    lv_obj_set_align(ui_profilepage_label_label18, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label18, "2231");
 
     lv_obj_add_event_cb(ui_profilepage_panel_backpannel4, ui_event_profilepage_panel_backpannel4, LV_EVENT_ALL, NULL);
 

@@ -9,3 +9,8 @@ void wifiConnectionStart(lv_event_t * e)
 {
 	// Your code here
 }
+
+void reminder_switch(lv_event_t * e)
+{
+	// Your code here
+}

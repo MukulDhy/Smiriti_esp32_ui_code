@@ -7,7 +7,8 @@
 #define _SMRITI_UI_UI_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #if defined __has_include
@@ -25,104 +26,120 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
-// SCREEN: ui_screen_wificonnectionpage1
-void ui_screen_wificonnectionpage1_screen_init(void);
-void ui_event_screen_wificonnectionpage1(lv_event_t * e);
-extern lv_obj_t * ui_screen_wificonnectionpage1;
-void ui_event_wificonnectionpage1_label_title(lv_event_t * e);
-extern lv_obj_t * ui_wificonnectionpage1_label_title;
-void ui_event_wificonnectionpage1_label_status(lv_event_t * e);
-extern lv_obj_t * ui_wificonnectionpage1_label_status;
-extern lv_obj_t * ui_wificonnectionpage1_label_statuserror;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_Screen_wificonnectionpage1;
-extern lv_obj_t * uic_wificonnectionpage1_Label_status;
-extern lv_obj_t * uic_wificonnectionpage1_Label_statuserror;
+    // SCREEN: ui_screen_wificonnectionpage1
+    void ui_screen_wificonnectionpage1_screen_init(void);
+    extern lv_obj_t *ui_screen_wificonnectionpage1;
+    void ui_event_wificonnectionpage1_label_title(lv_event_t *e);
+    extern lv_obj_t *ui_wificonnectionpage1_label_title;
+    extern lv_obj_t *ui_wificonnectionpage1_label_status;
+    extern lv_obj_t *ui_wificonnectionpage1_label_label6;
+    extern lv_obj_t *ui_wificonnectionpage1_label_label11;
+    // CUSTOM VARIABLES
+    extern lv_obj_t *uic_Screen_wificonnectionpage1;
+    extern lv_obj_t *uic_wificonnectionpage1_Label_status;
 
-// SCREEN: ui_screen_homepage
-void ui_screen_homepage_screen_init(void);
-extern lv_obj_t * ui_screen_homepage;
-extern lv_obj_t * ui_homepage_label_title;
-extern lv_obj_t * ui_homepage_label_time;
-void ui_event_homepage_button_menubutton(lv_event_t * e);
-extern lv_obj_t * ui_homepage_button_menubutton;
-void ui_event_homepage_label_menubtnlabel(lv_event_t * e);
-extern lv_obj_t * ui_homepage_label_menubtnlabel;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_homepage_Label_menubtnLabel;
+    // SCREEN: ui_screen_homepage
+    void ui_screen_homepage_screen_init(void);
+    extern lv_obj_t *ui_screen_homepage;
+    extern lv_obj_t *ui_homepage_label_title;
+    extern lv_obj_t *ui_homepage_label_time;
+    void ui_event_homepage_button_menubutton(lv_event_t *e);
+    extern lv_obj_t *ui_homepage_button_menubutton;
+    void ui_event_homepage_label_menubtnlabel(lv_event_t *e);
+    extern lv_obj_t *ui_homepage_label_menubtnlabel;
+    extern lv_obj_t *ui_homepage_label_date;
+    // CUSTOM VARIABLES
+    extern lv_obj_t *uic_homepage_Label_menubtnLabel;
 
-// SCREEN: ui_screen_menupage
-void ui_screen_menupage_screen_init(void);
-extern lv_obj_t * ui_screen_menupage;
-void ui_event_menupage_panel_backpannel(lv_event_t * e);
-extern lv_obj_t * ui_menupage_panel_backpannel;
-extern lv_obj_t * ui_menupage_label_back;
-extern lv_obj_t * ui_menupage_image_image1;
-void ui_event_menupage_button_button1(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button1;
-extern lv_obj_t * ui_menupage_label_label2;
-void ui_event_menupage_button_button2(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button2;
-extern lv_obj_t * ui_menupage_label_label1;
-void ui_event_menupage_button_button3(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button3;
-extern lv_obj_t * ui_menupage_label_label3;
-void ui_event_menupage_button_button4(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button4;
-extern lv_obj_t * ui_menupage_label_label4;
-extern lv_obj_t * ui_menupage_label_label5;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_menupage
+    void ui_screen_menupage_screen_init(void);
+    extern lv_obj_t *ui_screen_menupage;
+    void ui_event_menupage_panel_backpannel(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_panel_backpannel;
+    extern lv_obj_t *ui_menupage_label_back;
+    extern lv_obj_t *ui_menupage_image_image1;
+    void ui_event_menupage_button_button1(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button1;
+    extern lv_obj_t *ui_menupage_label_label2;
+    void ui_event_menupage_button_button2(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button2;
+    extern lv_obj_t *ui_menupage_label_label1;
+    void ui_event_menupage_button_button3(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button3;
+    extern lv_obj_t *ui_menupage_label_label3;
+    void ui_event_menupage_button_button4(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button4;
+    extern lv_obj_t *ui_menupage_label_label4;
+    extern lv_obj_t *ui_menupage_label_label5;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_reminderpage
-void ui_screen_reminderpage_screen_init(void);
-extern lv_obj_t * ui_screen_reminderpage;
-void ui_event_reminderpage_panel_backpannel2(lv_event_t * e);
-extern lv_obj_t * ui_reminderpage_panel_backpannel2;
-extern lv_obj_t * ui_reminderpage_label_back2;
-extern lv_obj_t * ui_reminderpage_image_image3;
-extern lv_obj_t * ui_reminderpage_label_label7;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_reminderpage
+    void ui_screen_reminderpage_screen_init(void);
+    extern lv_obj_t *ui_screen_reminderpage;
+    void ui_event_reminderpage_panel_backpannel2(lv_event_t *e);
+    extern lv_obj_t *ui_reminderpage_panel_backpannel2;
+    extern lv_obj_t *ui_reminderpage_label_back2;
+    extern lv_obj_t *ui_reminderpage_image_image3;
+    extern lv_obj_t *ui_reminderpage_label_label7;
+    void ui_event_reminderpage_switch_switch1(lv_event_t *e);
+    extern lv_obj_t *ui_reminderpage_switch_switch1;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_alertpage
-void ui_screen_alertpage_screen_init(void);
-extern lv_obj_t * ui_screen_alertpage;
-void ui_event_alertpage_panel_backpannel3(lv_event_t * e);
-extern lv_obj_t * ui_alertpage_panel_backpannel3;
-extern lv_obj_t * ui_alertpage_label_back3;
-extern lv_obj_t * ui_alertpage_image_image4;
-extern lv_obj_t * ui_alertpage_label_label8;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_alertpage
+    void ui_screen_alertpage_screen_init(void);
+    extern lv_obj_t *ui_screen_alertpage;
+    void ui_event_alertpage_panel_backpannel3(lv_event_t *e);
+    extern lv_obj_t *ui_alertpage_panel_backpannel3;
+    extern lv_obj_t *ui_alertpage_label_back3;
+    extern lv_obj_t *ui_alertpage_image_image4;
+    extern lv_obj_t *ui_alertpage_label_label8;
+    extern lv_obj_t *ui_alertpage_panel_panel2;
+    extern lv_obj_t *ui_alertpage_label_label19;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_profilepage
-void ui_screen_profilepage_screen_init(void);
-extern lv_obj_t * ui_screen_profilepage;
-void ui_event_profilepage_panel_backpannel4(lv_event_t * e);
-extern lv_obj_t * ui_profilepage_panel_backpannel4;
-extern lv_obj_t * ui_profilepage_label_back4;
-extern lv_obj_t * ui_profilepage_image_image5;
-extern lv_obj_t * ui_profilepage_label_label9;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_profilepage
+    void ui_screen_profilepage_screen_init(void);
+    extern lv_obj_t *ui_screen_profilepage;
+    void ui_event_profilepage_panel_backpannel4(lv_event_t *e);
+    extern lv_obj_t *ui_profilepage_panel_backpannel4;
+    extern lv_obj_t *ui_profilepage_label_back4;
+    extern lv_obj_t *ui_profilepage_image_image5;
+    extern lv_obj_t *ui_profilepage_label_label9;
+    extern lv_obj_t *ui_profilepage_image_image2;
+    extern lv_obj_t *ui_profilepage_container_container1;
+    extern lv_obj_t *ui_profilepage_label_label15;
+    extern lv_obj_t *ui_profilepage_label_label16;
+    extern lv_obj_t *ui_profilepage_label_label17;
+    extern lv_obj_t *ui_profilepage_label_label18;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_wificonnpage
-void ui_screen_wificonnpage_screen_init(void);
-extern lv_obj_t * ui_screen_wificonnpage;
-void ui_event_wificonnpage_panel_backpannel5(lv_event_t * e);
-extern lv_obj_t * ui_wificonnpage_panel_backpannel5;
-extern lv_obj_t * ui_wificonnpage_label_back5;
-extern lv_obj_t * ui_wificonnpage_image_image6;
-extern lv_obj_t * ui_wificonnpage_label_label10;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_wificonnpage
+    void ui_screen_wificonnpage_screen_init(void);
+    extern lv_obj_t *ui_screen_wificonnpage;
+    void ui_event_wificonnpage_panel_backpannel5(lv_event_t *e);
+    extern lv_obj_t *ui_wificonnpage_panel_backpannel5;
+    extern lv_obj_t *ui_wificonnpage_label_back5;
+    extern lv_obj_t *ui_wificonnpage_image_image6;
+    extern lv_obj_t *ui_wificonnpage_label_label10;
+    extern lv_obj_t *ui_wificonnpage_container_container2;
+    extern lv_obj_t *ui_wificonnpage_label_label13;
+    extern lv_obj_t *ui_wificonnpage_label_label14;
+    extern lv_obj_t *ui_wificonnpage_container_container3;
+    extern lv_obj_t *ui_wificonnpage_label_label20;
+    extern lv_obj_t *ui_wificonnpage_label_label21;
+    // CUSTOM VARIABLES
 
-// EVENTS
+    // EVENTS
 
-void ui_event_startevents____initial_actions0(lv_event_t * e);
-extern lv_obj_t * ui_startevents____initial_actions0;
+    void ui_event_startevents____initial_actions0(lv_event_t *e);
+    extern lv_obj_t *ui_startevents____initial_actions0;
 
-// IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_img_back_png);    // assets/img_back.png
+    // IMAGES AND IMAGE SETS
+    LV_IMG_DECLARE(ui_img_img_back_png); // assets/img_back.png
+    LV_IMG_DECLARE(ui_img_profile_png);  // assets/profile.png
 
-// UI INIT
-void ui_init(void);
+    // UI INIT
+    void ui_init(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

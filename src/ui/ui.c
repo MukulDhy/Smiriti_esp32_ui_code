@@ -10,17 +10,15 @@
 
 // SCREEN: ui_screen_wificonnectionpage1
 void ui_screen_wificonnectionpage1_screen_init(void);
-void ui_event_screen_wificonnectionpage1(lv_event_t * e);
 lv_obj_t * ui_screen_wificonnectionpage1;
 void ui_event_wificonnectionpage1_label_title(lv_event_t * e);
 lv_obj_t * ui_wificonnectionpage1_label_title;
-void ui_event_wificonnectionpage1_label_status(lv_event_t * e);
 lv_obj_t * ui_wificonnectionpage1_label_status;
-lv_obj_t * ui_wificonnectionpage1_label_statuserror;
+lv_obj_t * ui_wificonnectionpage1_label_label6;
+lv_obj_t * ui_wificonnectionpage1_label_label11;
 // CUSTOM VARIABLES
 lv_obj_t * uic_Screen_wificonnectionpage1;
 lv_obj_t * uic_wificonnectionpage1_Label_status;
-lv_obj_t * uic_wificonnectionpage1_Label_statuserror;
 
 // SCREEN: ui_screen_homepage
 void ui_screen_homepage_screen_init(void);
@@ -31,6 +29,7 @@ void ui_event_homepage_button_menubutton(lv_event_t * e);
 lv_obj_t * ui_homepage_button_menubutton;
 void ui_event_homepage_label_menubtnlabel(lv_event_t * e);
 lv_obj_t * ui_homepage_label_menubtnlabel;
+lv_obj_t * ui_homepage_label_date;
 // CUSTOM VARIABLES
 lv_obj_t * uic_homepage_Label_menubtnLabel;
 
@@ -64,6 +63,8 @@ lv_obj_t * ui_reminderpage_panel_backpannel2;
 lv_obj_t * ui_reminderpage_label_back2;
 lv_obj_t * ui_reminderpage_image_image3;
 lv_obj_t * ui_reminderpage_label_label7;
+void ui_event_reminderpage_switch_switch1(lv_event_t * e);
+lv_obj_t * ui_reminderpage_switch_switch1;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_screen_alertpage
@@ -74,6 +75,8 @@ lv_obj_t * ui_alertpage_panel_backpannel3;
 lv_obj_t * ui_alertpage_label_back3;
 lv_obj_t * ui_alertpage_image_image4;
 lv_obj_t * ui_alertpage_label_label8;
+lv_obj_t * ui_alertpage_panel_panel2;
+lv_obj_t * ui_alertpage_label_label19;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_screen_profilepage
@@ -84,6 +87,12 @@ lv_obj_t * ui_profilepage_panel_backpannel4;
 lv_obj_t * ui_profilepage_label_back4;
 lv_obj_t * ui_profilepage_image_image5;
 lv_obj_t * ui_profilepage_label_label9;
+lv_obj_t * ui_profilepage_image_image2;
+lv_obj_t * ui_profilepage_container_container1;
+lv_obj_t * ui_profilepage_label_label15;
+lv_obj_t * ui_profilepage_label_label16;
+lv_obj_t * ui_profilepage_label_label17;
+lv_obj_t * ui_profilepage_label_label18;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_screen_wificonnpage
@@ -94,6 +103,12 @@ lv_obj_t * ui_wificonnpage_panel_backpannel5;
 lv_obj_t * ui_wificonnpage_label_back5;
 lv_obj_t * ui_wificonnpage_image_image6;
 lv_obj_t * ui_wificonnpage_label_label10;
+lv_obj_t * ui_wificonnpage_container_container2;
+lv_obj_t * ui_wificonnpage_label_label13;
+lv_obj_t * ui_wificonnpage_label_label14;
+lv_obj_t * ui_wificonnpage_container_container3;
+lv_obj_t * ui_wificonnpage_label_label20;
+lv_obj_t * ui_wificonnpage_label_label21;
 // CUSTOM VARIABLES
 
 // EVENTS
@@ -110,30 +125,11 @@ lv_obj_t * ui_startevents____initial_actions0;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event_screen_wificonnectionpage1(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_LEFT) {
-        lv_indev_wait_release(lv_indev_active());
-        _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
-    }
-}
-
 void ui_event_wificonnectionpage1_label_title(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_PRESSED) {
-        _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
-    }
-}
-
-void ui_event_wificonnectionpage1_label_status(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
     }
 }
@@ -207,6 +203,16 @@ void ui_event_reminderpage_panel_backpannel2(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_screen_menupage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_menupage_screen_init);
+    }
+}
+
+void ui_event_reminderpage_switch_switch1(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        reminder_switch(e);
+        _ui_flag_modify(ui_reminderpage_switch_switch1, LV_OBJ_FLAG_CHECKABLE, _UI_MODIFY_FLAG_TOGGLE);
     }
 }
 

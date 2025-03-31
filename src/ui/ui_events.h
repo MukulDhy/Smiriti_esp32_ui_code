@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 void wifiConnectionStart(lv_event_t * e);
+void reminder_switch(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

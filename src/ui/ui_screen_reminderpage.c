@@ -46,6 +46,14 @@ void ui_screen_reminderpage_screen_init(void)
     lv_obj_set_style_text_color(ui_reminderpage_label_label7, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_reminderpage_label_label7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_reminderpage_switch_switch1 = lv_switch_create(ui_screen_reminderpage);
+    lv_obj_set_width(ui_reminderpage_switch_switch1, 114);
+    lv_obj_set_height(ui_reminderpage_switch_switch1, 25);
+    lv_obj_set_x(ui_reminderpage_switch_switch1, 0);
+    lv_obj_set_y(ui_reminderpage_switch_switch1, -9);
+    lv_obj_set_align(ui_reminderpage_switch_switch1, LV_ALIGN_CENTER);
+
     lv_obj_add_event_cb(ui_reminderpage_panel_backpannel2, ui_event_reminderpage_panel_backpannel2, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_reminderpage_switch_switch1, ui_event_reminderpage_switch_switch1, LV_EVENT_ALL, NULL);
 
 }
