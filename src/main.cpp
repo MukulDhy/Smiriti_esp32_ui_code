@@ -1,133 +1,125 @@
+// main.cpp
+#include <WiFi.h>
 #include "ui/ui.h"
 #include <lvgl.h>
 #include <TFT_eSPI.h>
 #include <XPT2046_Touchscreen.h>
+#include <tasks/wifi.h>
 
-//----------------------------------------
-
-// Defines the T_CS Touchscreen PIN.
 // Touchscreen pins
-#define XPT2046_IRQ 36  // T_IRQ
-#define XPT2046_MOSI 32 // T_DIN
-#define XPT2046_MISO 39 // T_OUT
-#define XPT2046_CLK 25  // T_CLK
-#define XPT2046_CS 33   // T_CS
-#define T_CS_PIN 13     //--> T_CS
+#define XPT2046_IRQ 36
+#define XPT2046_MOSI 32
+#define XPT2046_MISO 39
+#define XPT2046_CLK 25
+#define XPT2046_CS 33
 
-// Defines the Touchscreen calibration result value.
-// Replace with the calibration results on your TFT LCD Touchscreen.
-#define touchscreen_Min_X 203
-#define touchscreen_Max_X 3700
-#define touchscreen_Min_Y 240
-#define touchscreen_Max_Y 3721
-//----------------------------------------
-
-SPIClass touchscreenSPI = SPIClass(VSPI);
-XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
-
-// Defines the screen resolution.
+// Screen dimensions
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 240
 
-// LVGL draw into this buffer, 1/10 screen size usually works well. The size is in bytes.
+// LVGL configuration
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
-uint8_t *draw_buf; // Changed from array of pointers to simple pointer
 
-// Variables for x, y and z values ​​on the touchscreen.
-uint16_t x, y, z;
-
-// Used to track the tick timer.
+SPIClass touchscreenSPI(VSPI);
+XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
+uint8_t *draw_buf = nullptr;
 uint32_t lastTick = 0;
-
-unsigned long previousMillis = 0;
-const long interval = 2000;
 
 void log_print(lv_log_level_t level, const char *buf)
 {
-  LV_UNUSED(level);
-  Serial.println(buf);
-  Serial.flush();
+    Serial.println(buf);
 }
 
 void update_UI()
 {
-  lv_tick_inc(millis() - lastTick);
-  lastTick = millis();
-  lv_timer_handler();
+    lv_timer_handler();
+    lv_tick_inc(millis() - lastTick);
+    lastTick = millis();
 }
 
 void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
-  if (touchscreen.tirqTouched() && touchscreen.touched())
-  {
-    TS_Point p = touchscreen.getPoint();
-    x = map(p.x, touchscreen_Max_X, touchscreen_Min_X, 1, SCREEN_WIDTH);
-    y = map(p.y, touchscreen_Max_Y, touchscreen_Min_Y, 1, SCREEN_HEIGHT);
-    z = p.z;
+    static TS_Point lastPoint;
+    if (touchscreen.tirqTouched() && touchscreen.touched())
+    {
+        TS_Point p = touchscreen.getPoint();
+        lastPoint = p;
+        data->point.x = map(p.x, 240, 3600, 0, SCREEN_WIDTH);
+        data->point.y = map(p.y, 240, 2700, 0, SCREEN_HEIGHT);
+        data->state = LV_INDEV_STATE_PRESSED;
+    }
+    else
+    {
+        data->point.x = lastPoint.x;
+        data->point.y = lastPoint.y;
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
 
-    data->point.x = x;
-    data->point.y = y;
-    data->state = LV_INDEV_STATE_PRESSED;
-  }
-  else
-  {
-    data->state = LV_INDEV_STATE_RELEASED;
-  }
+TFT_eSPI tft = TFT_eSPI();
+void setActiveArea()
+{
+    // Column address range (0-239)
+    tft.writecommand(0x2A); // CASET command
+    tft.writedata(0);
+    tft.writedata(0);
+    tft.writedata(0);
+    tft.writedata(239);
+
+    // Row address range (40-279 for centered 240x240)
+    tft.writecommand(0x2B); // PASET command
+    tft.writedata(40 >> 8);
+    tft.writedata(40 & 0xFF); // Start row = 40
+    tft.writedata(279 >> 8);
+    tft.writedata(279 & 0xFF); // End row = 279
 }
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println();
-  delay(2000);
 
-  Serial.println("ESP32 + TFT LCD Touchscreen ILI9341 240x320 + LVGL + EEZ Studio");
-  Serial.println("Simple Multi-Screen");
-  Serial.println();
-  delay(500);
+    Serial.begin(115200);
+    delay(100); // Reduced initial delay
 
-  String LVGL_Arduino = String("LVGL Library Version: ") + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
-  Serial.println(LVGL_Arduino);
-  delay(500);
+    // Additional Code of the TFT - to set the 240 * 240
+    tft.init();
+    setActiveArea();
+    tft.setRotation(1); // Adjust rotation if needed
+    // Define the 240x240 viewport (centered vertically)
+    tft.setViewport(0, 40, 240, 240); // (x, y, width, height)
+    tft.fillScreen(TFT_BLACK);        // Test: fill only the viewport area
 
-  touchscreen.begin();
-  touchscreen.setRotation(2);
+    // Initialize LVGL
+    lv_init();
+    lv_log_register_print_cb(log_print);
 
-  //---------------------------------------- LVGL setup.
-  Serial.println();
-  Serial.println("Start LVGL Setup.");
-  delay(500);
+    // Initialize touchscreen
+    touchscreenSPI.begin(XPT2046_CLK, XPT2046_MISO, XPT2046_MOSI, XPT2046_CS);
+    touchscreen.begin(touchscreenSPI);
+    touchscreen.setRotation(0);
 
-  lv_init();
-  lv_log_register_print_cb(log_print);
 
-  // Allocate the draw buffer
-  draw_buf = (uint8_t *)heap_caps_malloc(DRAW_BUF_SIZE * sizeof(uint8_t), MALLOC_CAP_DMA);
-  if (draw_buf == nullptr)
-  {
-    Serial.println("Failed to allocate draw buffer!");
-    while (1)
-      ;
-  }
+    // Allocate draw buffer
+    draw_buf = (uint8_t *)heap_caps_malloc(DRAW_BUF_SIZE, MALLOC_CAP_DMA);
+    if (!draw_buf)
+        while (1)
+            ;
 
-  lv_display_t *disp = lv_tft_espi_create(SCREEN_HEIGHT, SCREEN_WIDTH, draw_buf, DRAW_BUF_SIZE);
-  lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90);
+    // Initialize display
+    lv_display_t *disp = lv_tft_espi_create(SCREEN_HEIGHT, SCREEN_WIDTH, draw_buf, DRAW_BUF_SIZE);
+    lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_0);
 
-  lv_indev_t *indev = lv_indev_create();
-  lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
-  lv_indev_set_read_cb(indev, touchscreen_read);
+    // Initialize input device
+    lv_indev_t *indev = lv_indev_create();
+    lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(indev, touchscreen_read);
 
-  Serial.println();
-  Serial.println("LVGL Setup Completed.");
-  delay(500);
-  //----------------------------------------
-
-  ui_init();
-  delay(500);
+    ui_init();
+    initWiFi(); // Modified WiFi initialization
 }
 
 void loop()
 {
-  update_UI();
-  delay(5);
+    update_UI();
+    handleWiFi(); // Non-blocking WiFi handling
+    delay(2); // Reduced delay for better responsiveness
 }

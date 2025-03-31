@@ -12,6 +12,7 @@
 void ui_screen_wificonnectionpage1_screen_init(void);
 void ui_event_screen_wificonnectionpage1(lv_event_t * e);
 lv_obj_t * ui_screen_wificonnectionpage1;
+void ui_event_wificonnectionpage1_label_title(lv_event_t * e);
 lv_obj_t * ui_wificonnectionpage1_label_title;
 void ui_event_wificonnectionpage1_label_status(lv_event_t * e);
 lv_obj_t * ui_wificonnectionpage1_label_status;
@@ -115,6 +116,15 @@ void ui_event_screen_wificonnectionpage1(lv_event_t * e)
 
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_active()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_active());
+        _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
+    }
+}
+
+void ui_event_wificonnectionpage1_label_title(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_PRESSED) {
         _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
     }
 }

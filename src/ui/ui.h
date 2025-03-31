@@ -29,6 +29,7 @@ extern "C" {
 void ui_screen_wificonnectionpage1_screen_init(void);
 void ui_event_screen_wificonnectionpage1(lv_event_t * e);
 extern lv_obj_t * ui_screen_wificonnectionpage1;
+void ui_event_wificonnectionpage1_label_title(lv_event_t * e);
 extern lv_obj_t * ui_wificonnectionpage1_label_title;
 void ui_event_wificonnectionpage1_label_status(lv_event_t * e);
 extern lv_obj_t * ui_wificonnectionpage1_label_status;
