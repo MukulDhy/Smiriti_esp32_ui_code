@@ -1,11 +1,13 @@
-// main.cpp
 #include <WiFi.h>
 #include "ui/ui.h"
 #include <lvgl.h>
 #include <TFT_eSPI.h>
+#include <Arduino.h>
+#include <SPI.h>
 #include <XPT2046_Touchscreen.h>
-#include <tasks/wifi.h>
-#include <tasks/time.h>
+#include <Wire.h> // For I2C communication
+#include "tasks/wifi.h"
+#include "tasks/time.h"
 
 // Touchscreen pins
 #define XPT2046_IRQ 36
@@ -22,13 +24,14 @@
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 
 // Configuration
-const char *WIFI_SSID = "MukulDhy";
+const char *WIFI_SSID = "Mukuldhy";
 const char *WIFI_PASS = "12345678";
 
 SPIClass touchscreenSPI(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
 uint8_t *draw_buf = nullptr;
 uint32_t lastTick = 0;
+TFT_eSPI tft = TFT_eSPI();
 
 void log_print(lv_log_level_t level, const char *buf)
 {
@@ -61,7 +64,6 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
   }
 }
 
-TFT_eSPI tft = TFT_eSPI();
 void setActiveArea()
 {
   // Column address range (0-239)
@@ -81,17 +83,18 @@ void setActiveArea()
 
 void setup()
 {
-
   Serial.begin(115200);
-  delay(100); // Reduced initial delay
+  delay(100);
 
-  // Additional Code of the TFT - to set the 240 * 240
+  // Initialize I2C bus first (for RTC)
+  Wire.begin();
+
+  // Initialize display
   tft.init();
   setActiveArea();
-  tft.setRotation(1); // Adjust rotation if needed
-  // Define the 240x240 viewport (centered vertically)
-  tft.setViewport(0, 40, 240, 240); // (x, y, width, height)
-  tft.fillScreen(TFT_BLACK);        // Test: fill only the viewport area
+  tft.setRotation(1);
+  tft.setViewport(0, 40, 240, 240);
+  tft.fillScreen(TFT_BLACK);
 
   // Initialize LVGL
   lv_init();
@@ -105,8 +108,11 @@ void setup()
   // Allocate draw buffer
   draw_buf = (uint8_t *)heap_caps_malloc(DRAW_BUF_SIZE, MALLOC_CAP_DMA);
   if (!draw_buf)
+  {
+    Serial.println("Failed to allocate draw buffer");
     while (1)
       ;
+  }
 
   // Initialize display
   lv_display_t *disp = lv_tft_espi_create(SCREEN_HEIGHT, SCREEN_WIDTH, draw_buf, DRAW_BUF_SIZE);
@@ -117,50 +123,40 @@ void setup()
   lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
   lv_indev_set_read_cb(indev, touchscreen_read);
 
+  // Initialize UI
   ui_init();
-  WiFiManager::begin(WIFI_SSID, WIFI_PASS); // Modified WiFi initialization
 
-  // Time Initialization
+  delay(2000);
+  // Initialize WiFi
+  WiFiManager::begin(WIFI_SSID, WIFI_PASS);
 
-  // Initialize RTC
-  if (!TimeManager::begin())
-  {
-    Serial.println("Failed to initialize RTC");
-  }
+  // Initialize Time
 
-  // initTime(); // Time Initialization
+  // Call this once at startup
+  TimeManager::initialize();
+
+  // To set specific Indian time (optional)
+  TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0); // 25th Dec 2023, 3:30 PM IST
+
+  // In setup():
+  // TimeManager::begin();
 }
 
 void loop()
 {
   update_UI();
-  WiFiManager::handle(); // Manage WiFi connection
+  WiFiManager::handle();
 
-  // Time Handle
+  // // Sync time with NTP when WiFi is connected
+  // static bool timeSynced = false;
+  // if (WiFiManager::getState() == WiFiManager::State::CONNECTED && !timeSynced)
+  // {
+  //   timeSynced = TimeManager::syncWithNTP();
+  // }
+  // TimeManager::update();
 
-  // Sync time with NTP when WiFi is connected
-  static bool timeSynced = false;
-  if (WiFiManager::getState() == WiFiManager::State::CONNECTED && !timeSynced)
-  {
-    if (TimeManager::syncWithNTP())
-    {
-      timeSynced = true;
-    }
-    else
-    {
-      // Retry after 1 minute if failed
-      static unsigned long lastRetry = 0;
-      if (millis() - lastRetry > 60000)
-      {
-        timeSynced = false;
-        lastRetry = millis();
-      }
-    }
-  }
-
-  // Update time display
+  // Call this in your main loop
   TimeManager::update();
 
-  // updateTime();
-  delay(2); // Reduced delay for better responsiveness
+  delay(2);
 }

@@ -11,11 +11,16 @@
 // SCREEN: ui_screen_wificonnectionpage1
 void ui_screen_wificonnectionpage1_screen_init(void);
 lv_obj_t * ui_screen_wificonnectionpage1;
-void ui_event_wificonnectionpage1_label_title(lv_event_t * e);
-lv_obj_t * ui_wificonnectionpage1_label_title;
 lv_obj_t * ui_wificonnectionpage1_label_status;
 lv_obj_t * ui_wificonnectionpage1_label_label6;
 lv_obj_t * ui_wificonnectionpage1_label_label11;
+lv_obj_t * ui_wificonnectionpage1_container_container4;
+void ui_event_wificonnectionpage1_button_button5(lv_event_t * e);
+lv_obj_t * ui_wificonnectionpage1_button_button5;
+lv_obj_t * ui_wificonnectionpage1_label_label12;
+void ui_event_wificonnectionpage1_button_button6(lv_event_t * e);
+lv_obj_t * ui_wificonnectionpage1_button_button6;
+lv_obj_t * ui_wificonnectionpage1_label_label22;
 // CUSTOM VARIABLES
 lv_obj_t * uic_Screen_wificonnectionpage1;
 lv_obj_t * uic_wificonnectionpage1_Label_status;
@@ -112,7 +117,6 @@ lv_obj_t * ui_wificonnpage_label_label21;
 // CUSTOM VARIABLES
 
 // EVENTS
-void ui_event_startevents____initial_actions0(lv_event_t * e);
 lv_obj_t * ui_startevents____initial_actions0;
 
 // IMAGES AND IMAGE SETS
@@ -125,11 +129,12 @@ lv_obj_t * ui_startevents____initial_actions0;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event_wificonnectionpage1_label_title(lv_event_t * e)
+
+void ui_event_wificonnectionpage1_button_button6(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_PRESSED) {
+    if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
     }
 }
@@ -243,15 +248,6 @@ void ui_event_wificonnpage_panel_backpannel5(lv_event_t * e)
     }
 }
 
-void ui_event_startevents____initial_actions0(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        wifiConnectionStart(e);
-    }
-}
-
 ///////////////////// SCREENS ////////////////////
 
 void ui_init(void)
@@ -268,6 +264,5 @@ void ui_init(void)
     ui_screen_profilepage_screen_init();
     ui_screen_wificonnpage_screen_init();
     ui_startevents____initial_actions0 = lv_obj_create(NULL);
-    lv_obj_add_event_cb(ui_startevents____initial_actions0, ui_event_startevents____initial_actions0, LV_EVENT_ALL, NULL);
     lv_disp_load_scr(ui_screen_wificonnectionpage1);
 }

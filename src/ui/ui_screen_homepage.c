@@ -8,7 +8,7 @@
 void ui_screen_homepage_screen_init(void)
 {
     ui_screen_homepage = lv_obj_create(NULL);
-    lv_obj_remove_flag(ui_screen_homepage, LV_OBJ_FLAG_SCROLLABLE); /// Flags
+    lv_obj_remove_flag(ui_screen_homepage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_homepage_label_title = lv_label_create(ui_screen_homepage);
     lv_obj_set_width(ui_homepage_label_title, 125);
@@ -22,12 +22,12 @@ void ui_screen_homepage_screen_init(void)
     lv_obj_set_style_text_font(ui_homepage_label_title, &lv_font_montserrat_36, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_homepage_label_time = lv_label_create(ui_screen_homepage);
-    lv_obj_set_width(ui_homepage_label_time, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ui_homepage_label_time, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_width(ui_homepage_label_time, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_homepage_label_time, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_homepage_label_time, 0);
     lv_obj_set_y(ui_homepage_label_time, -17);
     lv_obj_set_align(ui_homepage_label_time, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_homepage_label_time, "00:00:00");
+    lv_label_set_text(ui_homepage_label_time, "12:23:45");
     lv_obj_set_style_text_font(ui_homepage_label_time, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_homepage_button_menubutton = lv_button_create(ui_screen_homepage);
@@ -36,14 +36,14 @@ void ui_screen_homepage_screen_init(void)
     lv_obj_set_x(ui_homepage_button_menubutton, 3);
     lv_obj_set_y(ui_homepage_button_menubutton, 51);
     lv_obj_set_align(ui_homepage_button_menubutton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_homepage_button_menubutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
-    lv_obj_remove_flag(ui_homepage_button_menubutton, LV_OBJ_FLAG_SCROLLABLE);   /// Flags
+    lv_obj_add_flag(ui_homepage_button_menubutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_homepage_button_menubutton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_homepage_button_menubutton, lv_color_hex(0x24D858), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_homepage_button_menubutton, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_homepage_label_menubtnlabel = lv_label_create(ui_homepage_button_menubutton);
-    lv_obj_set_width(ui_homepage_label_menubtnlabel, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ui_homepage_label_menubtnlabel, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_width(ui_homepage_label_menubtnlabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_homepage_label_menubtnlabel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_homepage_label_menubtnlabel, 0);
     lv_obj_set_y(ui_homepage_label_menubtnlabel, 1);
     lv_obj_set_align(ui_homepage_label_menubtnlabel, LV_ALIGN_CENTER);
@@ -51,22 +51,15 @@ void ui_screen_homepage_screen_init(void)
     lv_obj_set_style_text_font(ui_homepage_label_menubtnlabel, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_homepage_label_date = lv_label_create(ui_screen_homepage);
-    lv_obj_set_width(ui_homepage_label_date, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ui_homepage_label_date, LV_SIZE_CONTENT); /// 1
+    lv_obj_set_width(ui_homepage_label_date, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_homepage_label_date, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_homepage_label_date, 2);
     lv_obj_set_y(ui_homepage_label_date, 14);
     lv_obj_set_align(ui_homepage_label_date, LV_ALIGN_CENTER);
     lv_label_set_text(ui_homepage_label_date, "27 December 2025");
 
-    lv_anim_t anim;
-    lv_anim_init(&anim);
-    lv_anim_set_var(&anim, ui_homepage_label_time);
-    lv_anim_set_values(&anim, -10, 0);
-    lv_anim_set_time(&anim, 500);
-    lv_anim_set_path_cb(&anim, lv_anim_path_ease_out);
-    lv_anim_start(&anim);
-
     lv_obj_add_event_cb(ui_homepage_label_menubtnlabel, ui_event_homepage_label_menubtnlabel, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_homepage_button_menubutton, ui_event_homepage_button_menubutton, LV_EVENT_ALL, NULL);
     uic_homepage_Label_menubtnLabel = ui_homepage_label_menubtnlabel;
+
 }
