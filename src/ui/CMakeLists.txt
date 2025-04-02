@@ -5,11 +5,16 @@ SET(SOURCES ui_screen_wificonnectionpage1.c
     ui_screen_alertpage.c
     ui_screen_profilepage.c
     ui_screen_wificonnpage.c
+    ui_screen_reminderalert.c
+    ui_screen_imageresultpage.c
+    ui_screen_audiocapturepage.c
     ui.c
     ui_comp_hook.c
     ui_helpers.c
     ui_events.cpp
     ui_img_img_back_png.c
-    ui_img_profile_png.c)
+    ui_img_profile_png.c
+    ui_img_notification_png.c
+    ui_img_voice_png.c)
 
 add_library(ui ${SOURCES})

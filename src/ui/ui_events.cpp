@@ -15,3 +15,13 @@ void reminder_switch(lv_event_t * e)
 	// Your code here
 }
 
+
+void reminderCloseBtn(lv_event_t * e)
+{
+	// Your code here
+}
+
+void retrywifiConn(lv_event_t * e)
+{
+	// Your code here
+}

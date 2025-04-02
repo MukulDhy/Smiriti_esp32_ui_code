@@ -10,7 +10,8 @@
 extern "C" {
 #endif
 
-void reminder_switch(lv_event_t * e);
+void retrywifiConn(lv_event_t * e);
+void reminderCloseBtn(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
