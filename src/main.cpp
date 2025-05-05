@@ -37,9 +37,14 @@ struct Config
   const char *MQTT_PASSWORD = "Mukul@jaat123";
 } config;
 
+// =============== MQTT MODIFICATIONS START ===============
+// Updated for single-device system with device ID 2113
 const char *mqtt_server = "02ed6b84181647639b35d467c00afbd9.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
-const char *mqtt_topic = "esp32/reminders";
+const char *device_id = "2113"; // Hardcoded device ID
+char status_topic[50];          // Will be "devices/2113/status"
+char command_topic[50];         // Will be "devices/2113/commands"
+// =============== MQTT MODIFICATIONS END ===============
 
 WiFiClientSecure espClientSecure;
 PubSubClient client(espClientSecure);
@@ -83,9 +88,18 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
   }
 }
 
+// =============== UPDATED CALLBACK FUNCTION ===============
 void callback(char *topic, byte *payload, unsigned int length)
 {
-  Serial.println("Message arrived");
+  Serial.print("Message arrived on topic: ");
+  Serial.println(topic);
+
+  // Only process messages for our command topic
+  if (strcmp(topic, command_topic) != 0)
+  {
+    Serial.println("Ignoring message - not for our command topic");
+    return;
+  }
 
   // Check if payload is null-terminated (deserializeJson expects a string)
   if (length == 0 || payload == nullptr)
@@ -101,18 +115,30 @@ void callback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  String reminderText = doc["text"].as<String>();
+  // Updated to match Node.js server message format
+  const char *title = doc["title"];
+  const char *description = doc["description"];
 
   if (label != nullptr)
-  { // Explicit nullptr check is clearer
-    lv_label_set_text(label, reminderText.c_str());
+  {
+    char displayText[100];
+    snprintf(displayText, sizeof(displayText), "%s\n%s", title, description);
+    lv_label_set_text(label, displayText);
     lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 20);
   }
-}
 
+  // Send acknowledgment back to status topic
+  char ackMsg[100];
+  snprintf(ackMsg, sizeof(ackMsg),
+           "{\"device_id\":\"%s\",\"status\":\"received\",\"reminder\":\"%s\"}",
+           device_id, title);
+  client.publish(status_topic, ackMsg);
+}
+// =============== END OF UPDATED CALLBACK ===============
+
+// =============== UPDATED RECONNECT FUNCTION ===============
 void reconnect()
 {
-
   IPAddress mqtt_ip;
   if (!WiFi.hostByName(mqtt_server, mqtt_ip))
   {
@@ -125,64 +151,36 @@ void reconnect()
 
   while (!client.connected())
   {
-    Serial.print("Attempting MQTT connection...");
+    Serial.print("Attempting MQTT connection as device ");
+    Serial.println(device_id);
 
-    // Create a unique client ID
-    String clientId = "ESP32Client-" + String(random(0xffff), HEX);
+    // Use device ID as client ID
+    String clientId = "ESP32-" + String(device_id);
 
     if (client.connect(clientId.c_str(), config.MQTT_USERNAME, config.MQTT_PASSWORD))
     {
-      Serial.println("connected");
-      client.subscribe(mqtt_topic);
+      Serial.println("Connected to MQTT broker");
+      client.subscribe(command_topic);
+      Serial.print("Subscribed to: ");
+      Serial.println(command_topic);
+
+      // Send initial status message
+      char initMsg[100];
+      snprintf(initMsg, sizeof(initMsg),
+               "{\"device_id\":\"%s\",\"status\":\"online\",\"ip\":\"%s\"}",
+               device_id, WiFi.localIP().toString().c_str());
+      client.publish(status_topic, initMsg);
     }
     else
     {
-      Serial.print("failed, rc=");
+      Serial.print("MQTT connection failed, rc=");
       Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-
-      // Print more detailed error
-      if (client.state() == MQTT_CONNECTION_TIMEOUT)
-      {
-        Serial.println("Connection timeout");
-      }
-      else if (client.state() == MQTT_CONNECTION_LOST)
-      {
-        Serial.println("Connection lost");
-      }
-      else if (client.state() == MQTT_CONNECT_FAILED)
-      {
-        Serial.println("Connect failed");
-      }
-      else if (client.state() == MQTT_DISCONNECTED)
-      {
-        Serial.println("Disconnected");
-      }
-      else if (client.state() == MQTT_CONNECT_BAD_PROTOCOL)
-      {
-        Serial.println("Bad protocol");
-      }
-      else if (client.state() == MQTT_CONNECT_BAD_CLIENT_ID)
-      {
-        Serial.println("Bad client ID");
-      }
-      else if (client.state() == MQTT_CONNECT_UNAVAILABLE)
-      {
-        Serial.println("Unavailable");
-      }
-      else if (client.state() == MQTT_CONNECT_BAD_CREDENTIALS)
-      {
-        Serial.println("Bad credentials");
-      }
-      else if (client.state() == MQTT_CONNECT_UNAUTHORIZED)
-      {
-        Serial.println("Unauthorized");
-      }
-
+      Serial.println(" retrying in 5 seconds");
       delay(5000);
     }
   }
 }
+// =============== END OF UPDATED RECONNECT ===============
 
 void setActiveArea()
 {
@@ -205,6 +203,12 @@ void setup()
 {
   Serial.begin(115200);
   delay(100);
+
+  // =============== MQTT TOPIC INITIALIZATION ===============
+  // Initialize topics for single-device system
+  sprintf(status_topic, "devices/%s/status", device_id);
+  sprintf(command_topic, "devices/%s/commands", device_id);
+  // =============== END TOPIC INIT ===============
 
   // Initialize I2C bus first (for RTC)
   Wire.begin();
@@ -251,22 +255,14 @@ void setup()
   WiFiManager::begin(WIFI_SSID, WIFI_PASS);
 
   // Initialize Time
-
-  // Call this once at startup
   TimeManager::initialize();
-
-  // To set specific Indian time (optional)
   TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0); // 25th Dec 2023, 3:30 PM IST
 
   // Configure WiFiClientSecure
   espClientSecure.setInsecure(); // Bypass certificate verification (for testing)
-  // For production, use: espClientSecure.setCACert(root_ca);
 
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
-
-  // In setup():
-  // TimeManager::begin();
 }
 
 void loop()
@@ -274,23 +270,12 @@ void loop()
   update_UI();
   WiFiManager::handle();
 
-  // Add WiFi status check
   if (WiFi.status() != WL_CONNECTED)
   {
     Serial.println("WiFi not connected!");
     delay(1000);
     return;
   }
-
-  // // Sync time with NTP when WiFi is connected
-  // static bool timeSynced = false;
-  // if (WiFiManager::getState() == WiFiManager::State::CONNECTED && !timeSynced)
-  // {
-  //   timeSynced = TimeManager::syncWithNTP();
-  // }
-  // TimeManager::update();
-
-  // Call this in your main loop
 
   if (!client.connected())
   {
@@ -299,6 +284,21 @@ void loop()
   client.loop();
 
   TimeManager::update();
+
+  // Periodically send device status
+  static unsigned long lastStatusUpdate = 0;
+  if (millis() - lastStatusUpdate > 30000)
+  { // Every 30 seconds
+    char statusMsg[150];
+    snprintf(statusMsg, sizeof(statusMsg),
+             "{\"device_id\":\"%s\",\"status\":\"online\",\"time\":\"%s\",\"rssi\":%d,\"free_heap\":%u}",
+             device_id,
+             TimeManager::getFormattedTime().c_str(),
+             WiFi.RSSI(),
+             ESP.getFreeHeap());
+    client.publish(status_topic, statusMsg);
+    lastStatusUpdate = millis();
+  }
 
   delay(2);
 }

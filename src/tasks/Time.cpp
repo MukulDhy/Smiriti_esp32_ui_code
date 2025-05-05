@@ -50,6 +50,19 @@ void TimeManager::setIndianTime(int year, int month, int day, int hour, int min,
     updateDateDisplay();
 }
 
+String TimeManager::getFormattedTime()
+{
+    char timeStr[20];
+    snprintf(timeStr, sizeof(timeStr), "%04d-%02d-%02dT%02d:%02d:%02dZ",
+             1900 + timeInfo.tm_year,
+             timeInfo.tm_mon + 1,
+             timeInfo.tm_mday,
+             timeInfo.tm_hour,
+             timeInfo.tm_min,
+             timeInfo.tm_sec);
+    return String(timeStr);
+}
+
 void TimeManager::update()
 {
     unsigned long currentMillis = millis();
@@ -87,7 +100,6 @@ void TimeManager::update()
     }
 }
 
-// Rest of the implementation remains the same...
 void TimeManager::updateTimeDisplay()
 {
     if (!ui_homepage_label_time)

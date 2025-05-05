@@ -11,6 +11,7 @@ public:
     static void initialize();
     static void update();
     static void setIndianTime(int year, int month, int day, int hour, int min, int sec);
+    static String getFormattedTime(); // Added this line
 
 private:
     static void updateTimeDisplay();
