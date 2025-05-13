@@ -89,6 +89,7 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 }
 
 // =============== UPDATED CALLBACK FUNCTION ===============
+
 void callback(char *topic, byte *payload, unsigned int length)
 {
   Serial.print("Message arrived on topic: ");
@@ -103,11 +104,22 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   // Check if payload is null-terminated (deserializeJson expects a string)
   if (length == 0 || payload == nullptr)
+  {
+    Serial.println("Error: Empty or null payload"); // Added more descriptive error
     return;
+  }
+
+  // Convert payload to null-terminated string for safe processing
+  char payloadStr[length + 1];
+  memcpy(payloadStr, payload, length);
+  payloadStr[length] = '\0';
+  Serial.print("Raw payload: "); // Added debug output
+  Serial.println(payloadStr);
 
   DynamicJsonDocument doc(256);
-  DeserializationError error = deserializeJson(doc, (const char *)payload, length);
+  DeserializationError error = deserializeJson(doc, payloadStr); // Removed unnecessary cast
 
+  // Check for JSON parsing errors
   if (error)
   {
     Serial.print("JSON deserialize failed: ");
@@ -116,24 +128,67 @@ void callback(char *topic, byte *payload, unsigned int length)
   }
 
   // Updated to match Node.js server message format
-  const char *title = doc["title"];
-  const char *description = doc["description"];
+  // Added default values and null checks for more robust operation
+  const char *title = doc["title"] | "Reminder";     // Default if missing
+  const char *description = doc["description"] | ""; // Default if missing
 
-  if (label != nullptr)
+  // Debug output for parsed values
+  Serial.print("Parsed title: ");
+  Serial.println(title);
+  Serial.print("Parsed description: ");
+  Serial.println(description);
+
+  // Original UI change code - kept intact
+  // _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_MOVE_TOP, 500, 0, &ui_screen_homepage_screen_init);
+  _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 500, 0, &ui_screen_reminderalert_screen_init);
+
+  // Added null checks for UI elements before updating
+  if (ui_reminderalert_label_label33)
   {
-    char displayText[100];
-    snprintf(displayText, sizeof(displayText), "%s\n%s", title, description);
-    lv_label_set_text(label, displayText);
-    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 20);
+    lv_label_set_text(ui_reminderalert_label_label33, description);
+  }
+  if (ui_reminderalert_label_label29)
+  {
+    lv_label_set_text(ui_reminderalert_label_label29, title);
   }
 
+  // Original commented code kept for reference
+  // if (label != nullptr)
+  // {
+  //   char displayText[100];
+  //   snprintf(displayText, sizeof(displayText), "%s\n%s", title, description);
+  //   lv_label_set_text(label, displayText);
+  //   lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 20);
+  // }
+
   // Send acknowledgment back to status topic
-  char ackMsg[100];
-  snprintf(ackMsg, sizeof(ackMsg),
-           "{\"device_id\":\"%s\",\"status\":\"received\",\"reminder\":\"%s\"}",
-           device_id, title);
-  client.publish(status_topic, ackMsg);
+  // Improved acknowledgment with JSON serialization instead of manual formatting
+  DynamicJsonDocument ackDoc(200);
+  ackDoc["device_id"] = device_id;
+  ackDoc["status"] = "received";
+  ackDoc["reminder"] = title;
+  ackDoc["timestamp"] = millis(); // Added timestamp for tracking
+
+  char ackMsg[256];
+  serializeJson(ackDoc, ackMsg);
+
+  if (!client.publish(status_topic, ackMsg))
+  {
+    Serial.println("Failed to publish acknowledgment"); // Added error handling
+  }
+  // Original acknowledgment code kept for reference:
+  // char ackMsg[100];
+  // snprintf(ackMsg, sizeof(ackMsg),
+  //          "{\"device_id\":\"%s\",\"status\":\"received\",\"reminder\":\"%s\"}",
+  //          device_id, title);
+  // client.publish(status_topic, ackMsg);
 }
+
+
+
+
+
+
 // =============== END OF UPDATED CALLBACK ===============
 
 // =============== UPDATED RECONNECT FUNCTION ===============
