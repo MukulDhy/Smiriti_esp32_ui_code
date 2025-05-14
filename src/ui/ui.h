@@ -7,7 +7,8 @@
 #define _SMRITI_UI_UI_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #if defined __has_include
@@ -25,196 +26,213 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
-// SCREEN: ui_screen_wificonnectionpage1
-void ui_screen_wificonnectionpage1_screen_init(void);
-extern lv_obj_t * ui_screen_wificonnectionpage1;
-extern lv_obj_t * ui_wificonnectionpage1_label_status;
-extern lv_obj_t * ui_wificonnectionpage1_label_label6;
-extern lv_obj_t * ui_wificonnectionpage1_label_label11;
-extern lv_obj_t * ui_wificonnectionpage1_container_container4;
-void ui_event_wificonnectionpage1_button_button5(lv_event_t * e);
-extern lv_obj_t * ui_wificonnectionpage1_button_button5;
-extern lv_obj_t * ui_wificonnectionpage1_label_label12;
-void ui_event_wificonnectionpage1_button_button6(lv_event_t * e);
-extern lv_obj_t * ui_wificonnectionpage1_button_button6;
-extern lv_obj_t * ui_wificonnectionpage1_label_label22;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_Screen_wificonnectionpage1;
-extern lv_obj_t * uic_wificonnectionpage1_Label_status;
+    // SCREEN: ui_screen_wificonnectionpage1
+    void ui_screen_wificonnectionpage1_screen_init(void);
+    extern lv_obj_t *ui_screen_wificonnectionpage1;
+    extern lv_obj_t *ui_wificonnectionpage1_label_status;
+    extern lv_obj_t *ui_wificonnectionpage1_label_label6;
+    extern lv_obj_t *ui_wificonnectionpage1_label_label11;
+    extern lv_obj_t *ui_wificonnectionpage1_container_container4;
+    void ui_event_wificonnectionpage1_button_button5(lv_event_t *e);
+    extern lv_obj_t *ui_wificonnectionpage1_button_button5;
+    extern lv_obj_t *ui_wificonnectionpage1_label_label12;
+    void ui_event_wificonnectionpage1_button_button6(lv_event_t *e);
+    extern lv_obj_t *ui_wificonnectionpage1_button_button6;
+    extern lv_obj_t *ui_wificonnectionpage1_label_label22;
+    // CUSTOM VARIABLES
+    extern lv_obj_t *uic_Screen_wificonnectionpage1;
+    extern lv_obj_t *uic_wificonnectionpage1_Label_status;
 
-// SCREEN: ui_screen_homepage
-void ui_screen_homepage_screen_init(void);
-extern lv_obj_t * ui_screen_homepage;
-extern lv_obj_t * ui_homepage_label_title;
-extern lv_obj_t * ui_homepage_label_time;
-void ui_event_homepage_button_menubutton(lv_event_t * e);
-extern lv_obj_t * ui_homepage_button_menubutton;
-void ui_event_homepage_label_menubtnlabel(lv_event_t * e);
-extern lv_obj_t * ui_homepage_label_menubtnlabel;
-extern lv_obj_t * ui_homepage_label_date;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_homepage_Label_menubtnLabel;
+    // SCREEN: ui_screen_homepage
+    void ui_screen_homepage_screen_init(void);
+    extern lv_obj_t *ui_screen_homepage;
+    extern lv_obj_t *ui_homepage_label_title;
+    extern lv_obj_t *ui_homepage_label_time;
+    void ui_event_homepage_button_menubutton(lv_event_t *e);
+    extern lv_obj_t *ui_homepage_button_menubutton;
+    void ui_event_homepage_label_menubtnlabel(lv_event_t *e);
+    extern lv_obj_t *ui_homepage_label_menubtnlabel;
+    extern lv_obj_t *ui_homepage_label_date;
+    // CUSTOM VARIABLES
+    extern lv_obj_t *uic_homepage_Label_menubtnLabel;
 
-// SCREEN: ui_screen_menupage
-void ui_screen_menupage_screen_init(void);
-extern lv_obj_t * ui_screen_menupage;
-void ui_event_menupage_panel_backpannel(lv_event_t * e);
-extern lv_obj_t * ui_menupage_panel_backpannel;
-extern lv_obj_t * ui_menupage_label_back;
-extern lv_obj_t * ui_menupage_image_image1;
-extern lv_obj_t * ui_menupage_label_label5;
-extern lv_obj_t * ui_menupage_panel_panel3;
-void ui_event_menupage_button_button1(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button1;
-extern lv_obj_t * ui_menupage_label_label2;
-void ui_event_menupage_button_button2(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button2;
-extern lv_obj_t * ui_menupage_label_label1;
-void ui_event_menupage_button_button3(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button3;
-extern lv_obj_t * ui_menupage_label_label3;
-void ui_event_menupage_button_button4(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button4;
-extern lv_obj_t * ui_menupage_label_label4;
-void ui_event_menupage_button_button8(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button8;
-extern lv_obj_t * ui_menupage_label_label32;
-void ui_event_menupage_button_button10(lv_event_t * e);
-extern lv_obj_t * ui_menupage_button_button10;
-extern lv_obj_t * ui_menupage_label_label34;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_menupage
+    void ui_screen_menupage_screen_init(void);
+    extern lv_obj_t *ui_screen_menupage;
+    void ui_event_menupage_panel_backpannel(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_panel_backpannel;
+    extern lv_obj_t *ui_menupage_label_back;
+    extern lv_obj_t *ui_menupage_image_image1;
+    extern lv_obj_t *ui_menupage_label_label5;
+    extern lv_obj_t *ui_menupage_panel_panel3;
+    void ui_event_menupage_button_button1(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button1;
+    extern lv_obj_t *ui_menupage_label_label2;
+    void ui_event_menupage_button_button2(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button2;
+    extern lv_obj_t *ui_menupage_label_label1;
+    void ui_event_menupage_button_button3(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button3;
+    extern lv_obj_t *ui_menupage_label_label3;
+    void ui_event_menupage_button_button4(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button4;
+    extern lv_obj_t *ui_menupage_label_label4;
+    void ui_event_menupage_button_button8(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button8;
+    extern lv_obj_t *ui_menupage_label_label32;
+    void ui_event_menupage_button_button10(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button10;
+    extern lv_obj_t *ui_menupage_label_label34;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_reminderpage
-void ui_screen_reminderpage_screen_init(void);
-extern lv_obj_t * ui_screen_reminderpage;
-void ui_event_reminderpage_panel_backpannel2(lv_event_t * e);
-extern lv_obj_t * ui_reminderpage_panel_backpannel2;
-extern lv_obj_t * ui_reminderpage_label_back2;
-extern lv_obj_t * ui_reminderpage_image_image3;
-extern lv_obj_t * ui_reminderpage_label_label7;
-extern lv_obj_t * ui_reminderpage_panel_panel1;
-extern lv_obj_t * ui_reminderpage_label_label25;
-extern lv_obj_t * ui_reminderpage_button_button9;
-extern lv_obj_t * ui_reminderpage_label_label27;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_reminderpage
+    void ui_screen_reminderpage_screen_init(void);
+    extern lv_obj_t *ui_screen_reminderpage;
+    void ui_event_reminderpage_panel_backpannel2(lv_event_t *e);
+    extern lv_obj_t *ui_reminderpage_panel_backpannel2;
+    extern lv_obj_t *ui_reminderpage_label_back2;
+    extern lv_obj_t *ui_reminderpage_image_image3;
+    extern lv_obj_t *ui_reminderpage_label_label7;
+    extern lv_obj_t *ui_reminderpage_panel_panel1;
+    extern lv_obj_t *ui_reminderpage_label_label25;
+    extern lv_obj_t *ui_reminderpage_button_button9;
+    extern lv_obj_t *ui_reminderpage_label_label27;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_alertpage
-void ui_screen_alertpage_screen_init(void);
-extern lv_obj_t * ui_screen_alertpage;
-void ui_event_alertpage_panel_backpannel3(lv_event_t * e);
-extern lv_obj_t * ui_alertpage_panel_backpannel3;
-extern lv_obj_t * ui_alertpage_label_back3;
-extern lv_obj_t * ui_alertpage_image_image4;
-extern lv_obj_t * ui_alertpage_label_label8;
-extern lv_obj_t * ui_alertpage_panel_panel2;
-extern lv_obj_t * ui_alertpage_label_label19;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_alertpage
+    void ui_screen_alertpage_screen_init(void);
+    extern lv_obj_t *ui_screen_alertpage;
+    void ui_event_alertpage_panel_backpannel3(lv_event_t *e);
+    extern lv_obj_t *ui_alertpage_panel_backpannel3;
+    extern lv_obj_t *ui_alertpage_label_back3;
+    extern lv_obj_t *ui_alertpage_image_image4;
+    extern lv_obj_t *ui_alertpage_label_label8;
+    extern lv_obj_t *ui_alertpage_panel_panel2;
+    extern lv_obj_t *ui_alertpage_label_label19;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_profilepage
-void ui_screen_profilepage_screen_init(void);
-extern lv_obj_t * ui_screen_profilepage;
-void ui_event_profilepage_panel_backpannel4(lv_event_t * e);
-extern lv_obj_t * ui_profilepage_panel_backpannel4;
-extern lv_obj_t * ui_profilepage_label_back4;
-extern lv_obj_t * ui_profilepage_image_image5;
-extern lv_obj_t * ui_profilepage_label_label9;
-extern lv_obj_t * ui_profilepage_container_container6;
-extern lv_obj_t * ui_profilepage_spinner_spinner1;
-extern lv_obj_t * ui_profilepage_label_label24;
-extern lv_obj_t * ui_profilepage_container_container5;
-extern lv_obj_t * ui_profilepage_container_container1;
-extern lv_obj_t * ui_profilepage_label_label15;
-extern lv_obj_t * ui_profilepage_label_label16;
-extern lv_obj_t * ui_profilepage_label_label17;
-extern lv_obj_t * ui_profilepage_label_label18;
-extern lv_obj_t * ui_profilepage_image_image2;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_profilepage
+    void ui_screen_profilepage_screen_init(void);
+    extern lv_obj_t *ui_screen_profilepage;
+    void ui_event_profilepage_panel_backpannel4(lv_event_t *e);
+    extern lv_obj_t *ui_profilepage_panel_backpannel4;
+    extern lv_obj_t *ui_profilepage_label_back4;
+    extern lv_obj_t *ui_profilepage_image_image5;
+    extern lv_obj_t *ui_profilepage_label_label9;
+    extern lv_obj_t *ui_profilepage_container_container6;
+    extern lv_obj_t *ui_profilepage_spinner_spinner1;
+    extern lv_obj_t *ui_profilepage_label_label24;
+    extern lv_obj_t *ui_profilepage_container_container5;
+    extern lv_obj_t *ui_profilepage_container_container1;
+    extern lv_obj_t *ui_profilepage_label_label15;
+    extern lv_obj_t *ui_profilepage_label_label16;
+    extern lv_obj_t *ui_profilepage_label_label17;
+    extern lv_obj_t *ui_profilepage_label_label18;
+    extern lv_obj_t *ui_profilepage_image_image2;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_wificonnpage
-void ui_screen_wificonnpage_screen_init(void);
-extern lv_obj_t * ui_screen_wificonnpage;
-void ui_event_wificonnpage_panel_backpannel5(lv_event_t * e);
-extern lv_obj_t * ui_wificonnpage_panel_backpannel5;
-extern lv_obj_t * ui_wificonnpage_label_back5;
-extern lv_obj_t * ui_wificonnpage_image_image6;
-extern lv_obj_t * ui_wificonnpage_label_label10;
-extern lv_obj_t * ui_wificonnpage_container_container2;
-extern lv_obj_t * ui_wificonnpage_label_label13;
-extern lv_obj_t * ui_wificonnpage_label_label14;
-extern lv_obj_t * ui_wificonnpage_container_container3;
-extern lv_obj_t * ui_wificonnpage_label_label20;
-extern lv_obj_t * ui_wificonnpage_label_label21;
-void ui_event_wificonnpage_button_button7(lv_event_t * e);
-extern lv_obj_t * ui_wificonnpage_button_button7;
-extern lv_obj_t * ui_wificonnpage_label_label23;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_wificonnpage
+    void ui_screen_wificonnpage_screen_init(void);
+    extern lv_obj_t *ui_screen_wificonnpage;
+    void ui_event_wificonnpage_panel_backpannel5(lv_event_t *e);
+    extern lv_obj_t *ui_wificonnpage_panel_backpannel5;
+    extern lv_obj_t *ui_wificonnpage_label_back5;
+    extern lv_obj_t *ui_wificonnpage_image_image6;
+    extern lv_obj_t *ui_wificonnpage_label_label10;
+    extern lv_obj_t *ui_wificonnpage_container_container2;
+    extern lv_obj_t *ui_wificonnpage_label_label13;
+    extern lv_obj_t *ui_wificonnpage_label_label14;
+    extern lv_obj_t *ui_wificonnpage_container_container3;
+    extern lv_obj_t *ui_wificonnpage_label_label20;
+    extern lv_obj_t *ui_wificonnpage_label_label21;
+    void ui_event_wificonnpage_button_button7(lv_event_t *e);
+    extern lv_obj_t *ui_wificonnpage_button_button7;
+    extern lv_obj_t *ui_wificonnpage_label_label23;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_reminderalert
-void ui_screen_reminderalert_screen_init(void);
-extern lv_obj_t * ui_screen_reminderalert;
-extern lv_obj_t * ui_reminderalert_label_label26;
-extern lv_obj_t * ui_reminderalert_image_image7;
-void ui_event_reminderalert_button_reminderbtn(lv_event_t * e);
-extern lv_obj_t * ui_reminderalert_button_reminderbtn;
-extern lv_obj_t * ui_reminderalert_label_reminderbtnlabel;
-extern lv_obj_t * ui_reminderalert_label_label28;
-extern lv_obj_t * ui_reminderalert_label_label29;
-extern lv_obj_t * ui_reminderalert_label_time2;
-extern lv_obj_t * ui_reminderalert_label_date2;
-extern lv_obj_t * ui_reminderalert_label_label30;
-extern lv_obj_t * ui_reminderalert_label_label31;
-extern lv_obj_t * ui_reminderalert_panel_panel4;
-extern lv_obj_t * ui_reminderalert_label_label33;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_reminderalert
+    void ui_screen_reminderalert_screen_init(void);
+    extern lv_obj_t *ui_screen_reminderalert;
+    extern lv_obj_t *ui_reminderalert_label_label26;
+    extern lv_obj_t *ui_reminderalert_image_image7;
+    void ui_event_reminderalert_button_reminderbtn(lv_event_t *e);
+    extern lv_obj_t *ui_reminderalert_button_reminderbtn;
+    extern lv_obj_t *ui_reminderalert_label_reminderbtnlabel;
+    extern lv_obj_t *ui_reminderalert_label_label28;
+    extern lv_obj_t *ui_reminderalert_label_label29;
+    extern lv_obj_t *ui_reminderalert_label_time2;
+    extern lv_obj_t *ui_reminderalert_label_date2;
+    extern lv_obj_t *ui_reminderalert_label_label30;
+    extern lv_obj_t *ui_reminderalert_label_label31;
+    extern lv_obj_t *ui_reminderalert_panel_panel4;
+    extern lv_obj_t *ui_reminderalert_label_label33;
+    // CUSTOM VARIABLES
 
-// SCREEN: ui_screen_imageresultpage
-void ui_screen_imageresultpage_screen_init(void);
-extern lv_obj_t * ui_screen_imageresultpage;
-void ui_event_imageresultpage_panel_backpannel1(lv_event_t * e);
-extern lv_obj_t * ui_imageresultpage_panel_backpannel1;
-extern lv_obj_t * ui_imageresultpage_label_back1;
-extern lv_obj_t * ui_imageresultpage_image_image8;
-extern lv_obj_t * ui_imageresultpage_label_label35;
-extern lv_obj_t * ui_imageresultpage_container_container7;
-extern lv_obj_t * ui_imageresultpage_spinner_spinner2;
-extern lv_obj_t * ui_imageresultpage_label_label36;
-extern lv_obj_t * ui_imageresultpage_container_container8;
-extern lv_obj_t * ui_imageresultpage_image_image9;
-extern lv_obj_t * ui_imageresultpage_label_label37;
-// CUSTOM VARIABLES
-extern lv_obj_t * uic_Screen_ImageResultPage;
+    // SCREEN: ui_screen_imageresultpage
+    void ui_screen_imageresultpage_screen_init(void);
+    extern lv_obj_t *ui_screen_imageresultpage;
+    void ui_event_imageresultpage_panel_backpannel1(lv_event_t *e);
+    extern lv_obj_t *ui_imageresultpage_panel_backpannel1;
+    extern lv_obj_t *ui_imageresultpage_label_back1;
+    extern lv_obj_t *ui_imageresultpage_image_image8;
+    extern lv_obj_t *ui_imageresultpage_label_label35;
+    extern lv_obj_t *ui_imageresultpage_container_container7;
+    extern lv_obj_t *ui_imageresultpage_spinner_spinner2;
+    extern lv_obj_t *ui_imageresultpage_label_label36;
+    extern lv_obj_t *ui_imageresultpage_container_container8;
+    extern lv_obj_t *ui_imageresultpage_image_image9;
+    extern lv_obj_t *ui_imageresultpage_label_label37;
+    // CUSTOM VARIABLES
+    extern lv_obj_t *uic_Screen_ImageResultPage;
 
-// SCREEN: ui_screen_audiocapturepage
-void ui_screen_audiocapturepage_screen_init(void);
-extern lv_obj_t * ui_screen_audiocapturepage;
-void ui_event_audiocapturepage_panel_backpannel6(lv_event_t * e);
-extern lv_obj_t * ui_audiocapturepage_panel_backpannel6;
-extern lv_obj_t * ui_audiocapturepage_label_back6;
-extern lv_obj_t * ui_audiocapturepage_image_image10;
-extern lv_obj_t * ui_audiocapturepage_label_label38;
-extern lv_obj_t * ui_audiocapturepage_container_container9;
-extern lv_obj_t * ui_audiocapturepage_spinner_spinner3;
-extern lv_obj_t * ui_audiocapturepage_label_label39;
-extern lv_obj_t * ui_audiocapturepage_container_container10;
-extern lv_obj_t * ui_audiocapturepage_image_image11;
-extern lv_obj_t * ui_audiocapturepage_label_label40;
-void ui_event_audiocapturepage_button_button12(lv_event_t * e);
-extern lv_obj_t * ui_audiocapturepage_button_button12;
-extern lv_obj_t * ui_audiocapturepage_label_label42;
-// CUSTOM VARIABLES
+    // SCREEN: ui_screen_sendalertpage
+    void ui_screen_sendalertpage_screen_init(void);
+    extern lv_obj_t *ui_screen_sendalertpage;
+    void ui_event_ui_screen_sendalertpage_panel_backpannel1(lv_event_t *e);
+    extern lv_obj_t *ui_screen_sendalertpage_panel_backpannel1;
+    extern lv_obj_t *ui_screen_sendalertpage_label_back1;
+    extern lv_obj_t *ui_screen_sendalertpage_image_image8;
+    extern lv_obj_t *ui_screen_sendalertpage_label_label35;
+    extern lv_obj_t *ui_screen_sendalertpage_container_container7;
+    extern lv_obj_t *ui_screen_sendalertpage_spinner_spinner2;
+    extern lv_obj_t *ui_screen_sendalertpage_label_label36;
+    extern lv_obj_t *ui_screen_sendalertpage_container_container8;
+    extern lv_obj_t *ui_screen_sendalertpage_image_image9;
+    extern lv_obj_t *ui_screen_sendalertpage_label_label37;
+    // CUSTOM VARIABLES
+    extern lv_obj_t *uic_Screen_sendalertpage;
 
-// EVENTS
+    // SCREEN: ui_screen_audiocapturepage
+    void ui_screen_audiocapturepage_screen_init(void);
+    extern lv_obj_t *ui_screen_audiocapturepage;
+    void ui_event_audiocapturepage_panel_backpannel6(lv_event_t *e);
+    extern lv_obj_t *ui_audiocapturepage_panel_backpannel6;
+    extern lv_obj_t *ui_audiocapturepage_label_back6;
+    extern lv_obj_t *ui_audiocapturepage_image_image10;
+    extern lv_obj_t *ui_audiocapturepage_label_label38;
+    extern lv_obj_t *ui_audiocapturepage_container_container9;
+    extern lv_obj_t *ui_audiocapturepage_spinner_spinner3;
+    extern lv_obj_t *ui_audiocapturepage_label_label39;
+    extern lv_obj_t *ui_audiocapturepage_container_container10;
+    extern lv_obj_t *ui_audiocapturepage_image_image11;
+    extern lv_obj_t *ui_audiocapturepage_label_label40;
+    void ui_event_audiocapturepage_button_button12(lv_event_t *e);
+    extern lv_obj_t *ui_audiocapturepage_button_button12;
+    extern lv_obj_t *ui_audiocapturepage_label_label42;
+    // CUSTOM VARIABLES
 
-extern lv_obj_t * ui_startevents____initial_actions0;
+    // EVENTS
 
-// IMAGES AND IMAGE SETS
-LV_IMG_DECLARE(ui_img_img_back_png);    // assets/img_back.png
-LV_IMG_DECLARE(ui_img_profile_png);    // assets/profile.png
-LV_IMG_DECLARE(ui_img_notification_png);    // assets/notification.png
-LV_IMG_DECLARE(ui_img_voice_png);    // assets/voice.png
+    extern lv_obj_t *ui_startevents____initial_actions0;
 
-// UI INIT
-void ui_init(void);
+    // IMAGES AND IMAGE SETS
+    LV_IMG_DECLARE(ui_img_img_back_png);     // assets/img_back.png
+    LV_IMG_DECLARE(ui_img_profile_png);      // assets/profile.png
+    LV_IMG_DECLARE(ui_img_notification_png); // assets/notification.png
+    LV_IMG_DECLARE(ui_img_voice_png);        // assets/voice.png
+
+    // UI INIT
+    void ui_init(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

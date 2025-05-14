@@ -167,6 +167,23 @@ lv_obj_t *ui_imageresultpage_label_label37;
 // CUSTOM VARIABLES
 lv_obj_t *uic_Screen_ImageResultPage;
 
+// SCREEN: ui_screen_sendalertpage
+void ui_screen_sendalertpage_screen_init(void);
+lv_obj_t *ui_screen_sendalertpage;
+void ui_event_ui_screen_sendalertpage_panel_backpannel1(lv_event_t *e);
+lv_obj_t *ui_screen_sendalertpage_panel_backpannel1;
+lv_obj_t *ui_screen_sendalertpage_label_back1;
+lv_obj_t *ui_screen_sendalertpage_image_image8;
+lv_obj_t *ui_screen_sendalertpage_label_label35;
+lv_obj_t *ui_screen_sendalertpage_container_container7;
+lv_obj_t *ui_screen_sendalertpage_spinner_spinner2;
+lv_obj_t *ui_screen_sendalertpage_label_label36;
+lv_obj_t *ui_screen_sendalertpage_container_container8;
+lv_obj_t *ui_screen_sendalertpage_image_image9;
+lv_obj_t *ui_screen_sendalertpage_label_label37;
+// CUSTOM VARIABLES
+lv_obj_t *uic_Screen_sendalertpage;
+
 // SCREEN: ui_screen_audiocapturepage
 void ui_screen_audiocapturepage_screen_init(void);
 lv_obj_t *ui_screen_audiocapturepage;
@@ -304,7 +321,8 @@ void ui_event_menupage_button_button10(lv_event_t *e)
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_screen_change(&ui_screen_profilepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_profilepage_screen_init);
+        // _ui_screen_change(&ui_screen_sendalertpage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_alertpage_screen_init);
+        _ui_screen_change(&ui_screen_sendalertpage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_sendalertpage_screen_init);
     }
 }
 
