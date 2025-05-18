@@ -16,7 +16,7 @@ void ui_screen_homepage_screen_init(void)
     lv_obj_set_x(ui_homepage_label_title, 0);
     lv_obj_set_y(ui_homepage_label_title, -60);
     lv_obj_set_align(ui_homepage_label_title, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_homepage_label_title, "Simriti");
+    lv_label_set_text(ui_homepage_label_title, "Smriti");
     lv_obj_set_style_text_color(ui_homepage_label_title, lv_color_hex(0x35E73C), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_homepage_label_title, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_homepage_label_title, &lv_font_montserrat_36, LV_PART_MAIN | LV_STATE_DEFAULT);

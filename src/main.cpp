@@ -184,10 +184,25 @@ void callback(char *topic, byte *payload, unsigned int length)
   // client.publish(status_topic, ackMsg);
 }
 
+// Callback for the Sned Alert Page
 
+void ui_event_sendalertpage_image_image9(lv_event_t *e)
+{
+  Serial.println("Sending alerts to the caregiver");
+  DynamicJsonDocument ackDoc(200);
+  ackDoc["device_id"] = device_id;
+  ackDoc["status"] = "received";
+  ackDoc["reminder"] = "Alert";
+  ackDoc["timestamp"] = millis(); // Added timestamp for tracking
 
+  char ackMsg[256];
+  serializeJson(ackDoc, ackMsg);
 
-
+  if (!client.publish(status_topic, ackMsg))
+  {
+    Serial.println("Failed to publish acknowledgment"); // Added error handling
+  }
+}
 
 // =============== END OF UPDATED CALLBACK ===============
 

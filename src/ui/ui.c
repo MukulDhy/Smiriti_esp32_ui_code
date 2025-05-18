@@ -171,6 +171,7 @@ lv_obj_t *uic_Screen_ImageResultPage;
 void ui_screen_sendalertpage_screen_init(void);
 lv_obj_t *ui_screen_sendalertpage;
 void ui_event_ui_screen_sendalertpage_panel_backpannel1(lv_event_t *e);
+void ui_event_sendalertpage_image_image9(lv_event_t *e);
 lv_obj_t *ui_screen_sendalertpage_panel_backpannel1;
 lv_obj_t *ui_screen_sendalertpage_label_back1;
 lv_obj_t *ui_screen_sendalertpage_image_image8;
@@ -232,6 +233,16 @@ void ui_event_wificonnectionpage1_button_button6(lv_event_t *e)
     if (event_code == LV_EVENT_CLICKED)
     {
         _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_homepage_screen_init);
+    }
+}
+
+void ui_event_ui_screen_sendalertpage_panel_backpannel1(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        _ui_screen_change(&ui_screen_homepage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_homepage_screen_init);
     }
 }
 

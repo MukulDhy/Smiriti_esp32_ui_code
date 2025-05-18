@@ -42,7 +42,7 @@ void ui_screen_sendalertpage_screen_init(void)
     lv_obj_set_x(ui_screen_sendalertpage_label_label35, 0);
     lv_obj_set_y(ui_screen_sendalertpage_label_label35, -63);
     lv_obj_set_align(ui_screen_sendalertpage_label_label35, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_screen_sendalertpage_label_label35, "Speaker Identify");
+    lv_label_set_text(ui_screen_sendalertpage_label_label35, "Send Alerts");
     lv_obj_set_style_text_color(ui_screen_sendalertpage_label_label35, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_screen_sendalertpage_label_label35, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -72,7 +72,7 @@ void ui_screen_sendalertpage_screen_init(void)
     lv_obj_set_x(ui_screen_sendalertpage_label_label36, 3);
     lv_obj_set_y(ui_screen_sendalertpage_label_label36, 35);
     lv_obj_set_align(ui_screen_sendalertpage_label_label36, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_screen_sendalertpage_label_label36, "y56y56y56y56y56y56y56y56y56y56y56y56y56y56y56y");
+    lv_label_set_text(ui_screen_sendalertpage_label_label36, "Sending.........");
 
     ui_screen_sendalertpage_container_container8 = lv_obj_create(ui_screen_sendalertpage);
     lv_obj_remove_style_all(ui_screen_sendalertpage_container_container8);
@@ -101,11 +101,14 @@ void ui_screen_sendalertpage_screen_init(void)
     lv_obj_set_x(ui_screen_sendalertpage_label_label37, -3);
     lv_obj_set_y(ui_screen_sendalertpage_label_label37, 40);
     lv_obj_set_align(ui_screen_sendalertpage_label_label37, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_screen_sendalertpage_label_label37, "Alert Page");
+    lv_label_set_text(ui_screen_sendalertpage_label_label37, "Caregiver");
     lv_obj_set_style_text_align(ui_screen_sendalertpage_label_label37, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_screen_sendalertpage_label_label37, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_add_event_cb(ui_screen_sendalertpage_panel_backpannel1, ui_event_imageresultpage_panel_backpannel1, LV_EVENT_ALL,
+    lv_obj_add_event_cb(ui_screen_sendalertpage_panel_backpannel1, ui_event_ui_screen_sendalertpage_panel_backpannel1, LV_EVENT_ALL,
+                        NULL);
+
+    lv_obj_add_event_cb(ui_screen_sendalertpage_image_image9, ui_event_sendalertpage_image_image9, LV_EVENT_ALL,
                         NULL);
     uic_Screen_ImageResultPage = ui_screen_sendalertpage;
 }

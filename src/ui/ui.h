@@ -193,6 +193,7 @@ extern "C"
     extern lv_obj_t *ui_screen_sendalertpage_label_back1;
     extern lv_obj_t *ui_screen_sendalertpage_image_image8;
     extern lv_obj_t *ui_screen_sendalertpage_label_label35;
+    void ui_event_sendalertpage_image_image9(lv_event_t *e);
     extern lv_obj_t *ui_screen_sendalertpage_container_container7;
     extern lv_obj_t *ui_screen_sendalertpage_spinner_spinner2;
     extern lv_obj_t *ui_screen_sendalertpage_label_label36;
