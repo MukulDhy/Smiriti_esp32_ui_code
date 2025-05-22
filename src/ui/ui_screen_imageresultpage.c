@@ -88,13 +88,13 @@ void ui_screen_imageresultpage_screen_init(void)
     ui_imageresultpage_image_image9 = lv_image_create(ui_imageresultpage_container_container8);
     lv_image_set_src(ui_imageresultpage_image_image9, &ui_img_pooja_pic_png);
     lv_obj_set_width(ui_imageresultpage_image_image9, 95);
-    lv_obj_set_height(ui_imageresultpage_image_image9, 16);
+    lv_obj_set_height(ui_imageresultpage_image_image9, 68);
     lv_obj_set_x(ui_imageresultpage_image_image9, -10);
     lv_obj_set_y(ui_imageresultpage_image_image9, -19);
     lv_obj_set_align(ui_imageresultpage_image_image9, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_imageresultpage_image_image9, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_imageresultpage_image_image9, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_image_set_scale(ui_imageresultpage_image_image9, 100);
+    lv_image_set_scale(ui_imageresultpage_image_image9, 700);
 
     ui_imageresultpage_label_label37 = lv_label_create(ui_imageresultpage_container_container8);
     lv_obj_set_width(ui_imageresultpage_label_label37, 184);

@@ -37,7 +37,7 @@ struct Config
   const char *MQTT_USERNAME = "mukulmqtt";
   const char *MQTT_PASSWORD = "Mukul@jaat123";
 } config;
-
+void callAlertToBackend(lv_event_t *e);
 // =============== MQTT MODIFICATIONS START ===============
 // Updated for single-device system with device ID 2113
 const char *mqtt_server = "02ed6b84181647639b35d467c00afbd9.s1.eu.hivemq.cloud";
@@ -193,7 +193,17 @@ void callback(char *topic, byte *payload, unsigned int length)
 
 // Callback for the Sned Alert Page
 
-void ui_event_sendalertpage_image_image9(lv_event_t *e)
+// void ui_event_alertpage_image_image12(lv_event_t *e)
+// {
+//   lv_event_code_t event_code = lv_event_get_code(e);
+
+//   if (event_code == LV_EVENT_CLICKED)
+//   {
+//     (e);
+//   }
+// }
+
+void callAlertToBackend(lv_event_t *e)
 {
   Serial.println("Sending alerts to the caregiver");
   DynamicJsonDocument ackDoc(200);
@@ -209,7 +219,32 @@ void ui_event_sendalertpage_image_image9(lv_event_t *e)
   {
     Serial.println("Failed to publish acknowledgment"); // Added error handling
   }
+  // Your code here
 }
+// void ui_event_alertpage_image_image12(lv_event_t *e)
+// {
+//   lv_event_code_t event_code = lv_event_get_code(e);
+
+//   if (event_code == LV_EVENT_CLICKED)
+//   {
+//     (e);
+
+//     Serial.println("Sending alerts to the caregiver");
+//     DynamicJsonDocument ackDoc(200);
+//     ackDoc["device_id"] = device_id;
+//     ackDoc["status"] = "received";
+//     ackDoc["reminder"] = "Alert";
+//     ackDoc["timestamp"] = millis(); // Added timestamp for tracking
+
+//     char ackMsg[256];
+//     serializeJson(ackDoc, ackMsg);
+
+//     if (!client.publish(status_topic, ackMsg))
+//     {
+//       Serial.println("Failed to publish acknowledgment"); // Added error handling
+//     }
+//   }
+// }
 
 // =============== END OF UPDATED CALLBACK ===============
 

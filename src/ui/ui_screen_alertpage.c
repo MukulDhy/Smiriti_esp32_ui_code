@@ -58,5 +58,6 @@ void ui_screen_alertpage_screen_init(void)
     lv_obj_remove_flag(ui_alertpage_image_image12, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     lv_obj_add_event_cb(ui_alertpage_panel_backpannel3, ui_event_alertpage_panel_backpannel3, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_alertpage_image_image12, ui_event_alertpage_image_image12, LV_EVENT_ALL, NULL);
 
 }

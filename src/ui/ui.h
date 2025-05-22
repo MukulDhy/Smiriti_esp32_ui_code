@@ -106,6 +106,7 @@ extern lv_obj_t * ui_alertpage_panel_backpannel3;
 extern lv_obj_t * ui_alertpage_label_back3;
 extern lv_obj_t * ui_alertpage_image_image4;
 extern lv_obj_t * ui_alertpage_label_label8;
+void ui_event_alertpage_image_image12(lv_event_t * e);
 extern lv_obj_t * ui_alertpage_image_image12;
 // CUSTOM VARIABLES
 

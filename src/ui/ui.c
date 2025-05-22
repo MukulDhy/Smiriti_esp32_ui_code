@@ -89,6 +89,7 @@ lv_obj_t * ui_alertpage_panel_backpannel3;
 lv_obj_t * ui_alertpage_label_back3;
 lv_obj_t * ui_alertpage_image_image4;
 lv_obj_t * ui_alertpage_label_label8;
+void ui_event_alertpage_image_image12(lv_event_t * e);
 lv_obj_t * ui_alertpage_image_image12;
 // CUSTOM VARIABLES
 
@@ -304,6 +305,15 @@ void ui_event_alertpage_panel_backpannel3(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_screen_menupage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_menupage_screen_init);
+    }
+}
+
+void ui_event_alertpage_image_image12(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        callAlertToBackend(e);
     }
 }
 
