@@ -13,8 +13,8 @@ void ui_screen_homepage_screen_init(void)
     ui_homepage_label_title = lv_label_create(ui_screen_homepage);
     lv_obj_set_width(ui_homepage_label_title, 125);
     lv_obj_set_height(ui_homepage_label_title, 38);
-    lv_obj_set_x(ui_homepage_label_title, 0);
-    lv_obj_set_y(ui_homepage_label_title, -60);
+    lv_obj_set_x(ui_homepage_label_title, 1);
+    lv_obj_set_y(ui_homepage_label_title, -72);
     lv_obj_set_align(ui_homepage_label_title, LV_ALIGN_CENTER);
     lv_label_set_text(ui_homepage_label_title, "Smriti");
     lv_obj_set_style_text_color(ui_homepage_label_title, lv_color_hex(0x35E73C), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -24,17 +24,17 @@ void ui_screen_homepage_screen_init(void)
     ui_homepage_label_time = lv_label_create(ui_screen_homepage);
     lv_obj_set_width(ui_homepage_label_time, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_homepage_label_time, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_homepage_label_time, 0);
-    lv_obj_set_y(ui_homepage_label_time, -17);
+    lv_obj_set_x(ui_homepage_label_time, -4);
+    lv_obj_set_y(ui_homepage_label_time, -23);
     lv_obj_set_align(ui_homepage_label_time, LV_ALIGN_CENTER);
     lv_label_set_text(ui_homepage_label_time, "12:23:45");
     lv_obj_set_style_text_font(ui_homepage_label_time, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_homepage_button_menubutton = lv_button_create(ui_screen_homepage);
-    lv_obj_set_width(ui_homepage_button_menubutton, 82);
+    lv_obj_set_width(ui_homepage_button_menubutton, 129);
     lv_obj_set_height(ui_homepage_button_menubutton, 30);
-    lv_obj_set_x(ui_homepage_button_menubutton, 3);
-    lv_obj_set_y(ui_homepage_button_menubutton, 51);
+    lv_obj_set_x(ui_homepage_button_menubutton, -4);
+    lv_obj_set_y(ui_homepage_button_menubutton, 54);
     lv_obj_set_align(ui_homepage_button_menubutton, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_homepage_button_menubutton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_homepage_button_menubutton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -53,10 +53,10 @@ void ui_screen_homepage_screen_init(void)
     ui_homepage_label_date = lv_label_create(ui_screen_homepage);
     lv_obj_set_width(ui_homepage_label_date, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_homepage_label_date, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_homepage_label_date, 2);
+    lv_obj_set_x(ui_homepage_label_date, -4);
     lv_obj_set_y(ui_homepage_label_date, 14);
     lv_obj_set_align(ui_homepage_label_date, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_homepage_label_date, "27 December 2025");
+    lv_label_set_text(ui_homepage_label_date, "22 May 2025");
 
     lv_obj_add_event_cb(ui_homepage_label_menubtnlabel, ui_event_homepage_label_menubtnlabel, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_homepage_button_menubutton, ui_event_homepage_button_menubutton, LV_EVENT_ALL, NULL);

@@ -11,18 +11,18 @@ void ui_screen_reminderpage_screen_init(void)
     lv_obj_remove_flag(ui_screen_reminderpage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_reminderpage_panel_backpannel2 = lv_obj_create(ui_screen_reminderpage);
-    lv_obj_set_width(ui_reminderpage_panel_backpannel2, 188);
+    lv_obj_set_width(ui_reminderpage_panel_backpannel2, 209);
     lv_obj_set_height(ui_reminderpage_panel_backpannel2, 50);
-    lv_obj_set_x(ui_reminderpage_panel_backpannel2, 2);
-    lv_obj_set_y(ui_reminderpage_panel_backpannel2, -101);
+    lv_obj_set_x(ui_reminderpage_panel_backpannel2, -1);
+    lv_obj_set_y(ui_reminderpage_panel_backpannel2, -128);
     lv_obj_set_align(ui_reminderpage_panel_backpannel2, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_reminderpage_panel_backpannel2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_reminderpage_label_back2 = lv_label_create(ui_reminderpage_panel_backpannel2);
     lv_obj_set_width(ui_reminderpage_label_back2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_reminderpage_label_back2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_reminderpage_label_back2, 10);
-    lv_obj_set_y(ui_reminderpage_label_back2, 5);
+    lv_obj_set_x(ui_reminderpage_label_back2, 11);
+    lv_obj_set_y(ui_reminderpage_label_back2, -1);
     lv_obj_set_align(ui_reminderpage_label_back2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_reminderpage_label_back2, "Back");
 
@@ -31,7 +31,7 @@ void ui_screen_reminderpage_screen_init(void)
     lv_obj_set_width(ui_reminderpage_image_image3, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_reminderpage_image_image3, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_reminderpage_image_image3, -27);
-    lv_obj_set_y(ui_reminderpage_image_image3, 5);
+    lv_obj_set_y(ui_reminderpage_image_image3, 0);
     lv_obj_set_align(ui_reminderpage_image_image3, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_reminderpage_image_image3, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_reminderpage_image_image3, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -39,38 +39,43 @@ void ui_screen_reminderpage_screen_init(void)
     ui_reminderpage_label_label7 = lv_label_create(ui_screen_reminderpage);
     lv_obj_set_width(ui_reminderpage_label_label7, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_reminderpage_label_label7, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_reminderpage_label_label7, 0);
-    lv_obj_set_y(ui_reminderpage_label_label7, -61);
+    lv_obj_set_x(ui_reminderpage_label_label7, -1);
+    lv_obj_set_y(ui_reminderpage_label_label7, -81);
     lv_obj_set_align(ui_reminderpage_label_label7, LV_ALIGN_CENTER);
     lv_label_set_text(ui_reminderpage_label_label7, "Reminder Page");
     lv_obj_set_style_text_color(ui_reminderpage_label_label7, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_reminderpage_label_label7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_reminderpage_label_label7, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_reminderpage_panel_panel1 = lv_obj_create(ui_screen_reminderpage);
     lv_obj_set_width(ui_reminderpage_panel_panel1, 201);
-    lv_obj_set_height(ui_reminderpage_panel_panel1, 93);
-    lv_obj_set_x(ui_reminderpage_panel_panel1, 0);
-    lv_obj_set_y(ui_reminderpage_panel_panel1, 5);
+    lv_obj_set_height(ui_reminderpage_panel_panel1, 152);
+    lv_obj_set_x(ui_reminderpage_panel_panel1, 3);
+    lv_obj_set_y(ui_reminderpage_panel_panel1, 15);
     lv_obj_set_align(ui_reminderpage_panel_panel1, LV_ALIGN_CENTER);
     lv_obj_set_scroll_dir(ui_reminderpage_panel_panel1, LV_DIR_VER);
 
     ui_reminderpage_label_label25 = lv_label_create(ui_reminderpage_panel_panel1);
     lv_obj_set_width(ui_reminderpage_label_label25, 176);
-    lv_obj_set_height(ui_reminderpage_label_label25, 286);
-    lv_obj_set_x(ui_reminderpage_label_label25, 0);
-    lv_obj_set_y(ui_reminderpage_label_label25, 106);
+    lv_obj_set_height(ui_reminderpage_label_label25, 354);
+    lv_obj_set_x(ui_reminderpage_label_label25, -2);
+    lv_obj_set_y(ui_reminderpage_label_label25, 114);
     lv_obj_set_align(ui_reminderpage_label_label25, LV_ALIGN_CENTER);
     lv_label_set_text(ui_reminderpage_label_label25,
-                      "text1 2321\n312\n315345435 34543f\nr fer43\nf r\nf\nre fre fjrel jfkerj oifreoi froeihf iuoreho reogoireuogieruoig uerougo eruogi ueroi guoireug oeruoig ureoug oireu goureoigureoiugoiu90847549r4 3r43 \nr 43\nt\n554\nt\n43 \n43r\n43 \nr4 \n43\n\n r43\nr4\nr\n 4\nr\n 43");
+                      "         Reminder 1\nTitle - Take Medicine\nDes - 3 pills (Blue Colour) 30mg\n\n         Reminder 2\nTitle - Use Smriti App\nDes - Play Mind Games\n\n         Reminder 3\nTitle - Do Exercise\nDes - Go Outside and Do Exercise");
     lv_obj_set_scrollbar_mode(ui_reminderpage_label_label25, LV_SCROLLBAR_MODE_ON);
     lv_obj_set_scroll_dir(ui_reminderpage_label_label25, LV_DIR_VER);
     lv_obj_set_scroll_snap_y(ui_reminderpage_label_label25, LV_SCROLL_SNAP_START);
+    lv_obj_set_style_text_color(ui_reminderpage_label_label25, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_reminderpage_label_label25, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui_reminderpage_label_label25, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui_reminderpage_label_label25, 6, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_reminderpage_button_button9 = lv_button_create(ui_screen_reminderpage);
     lv_obj_set_width(ui_reminderpage_button_button9, 100);
     lv_obj_set_height(ui_reminderpage_button_button9, 23);
-    lv_obj_set_x(ui_reminderpage_button_button9, 1);
-    lv_obj_set_y(ui_reminderpage_button_button9, 77);
+    lv_obj_set_x(ui_reminderpage_button_button9, -2);
+    lv_obj_set_y(ui_reminderpage_button_button9, 124);
     lv_obj_set_align(ui_reminderpage_button_button9, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_reminderpage_button_button9, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_reminderpage_button_button9, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

@@ -11,10 +11,10 @@ void ui_screen_imageresultpage_screen_init(void)
     lv_obj_remove_flag(ui_screen_imageresultpage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_imageresultpage_panel_backpannel1 = lv_obj_create(ui_screen_imageresultpage);
-    lv_obj_set_width(ui_imageresultpage_panel_backpannel1, 188);
+    lv_obj_set_width(ui_imageresultpage_panel_backpannel1, 222);
     lv_obj_set_height(ui_imageresultpage_panel_backpannel1, 50);
-    lv_obj_set_x(ui_imageresultpage_panel_backpannel1, 2);
-    lv_obj_set_y(ui_imageresultpage_panel_backpannel1, -101);
+    lv_obj_set_x(ui_imageresultpage_panel_backpannel1, 1);
+    lv_obj_set_y(ui_imageresultpage_panel_backpannel1, -129);
     lv_obj_set_align(ui_imageresultpage_panel_backpannel1, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_imageresultpage_panel_backpannel1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
@@ -39,12 +39,13 @@ void ui_screen_imageresultpage_screen_init(void)
     ui_imageresultpage_label_label35 = lv_label_create(ui_screen_imageresultpage);
     lv_obj_set_width(ui_imageresultpage_label_label35, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_imageresultpage_label_label35, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_imageresultpage_label_label35, 0);
-    lv_obj_set_y(ui_imageresultpage_label_label35, -63);
+    lv_obj_set_x(ui_imageresultpage_label_label35, 1);
+    lv_obj_set_y(ui_imageresultpage_label_label35, -87);
     lv_obj_set_align(ui_imageresultpage_label_label35, LV_ALIGN_CENTER);
     lv_label_set_text(ui_imageresultpage_label_label35, "Speaker Identify");
     lv_obj_set_style_text_color(ui_imageresultpage_label_label35, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_imageresultpage_label_label35, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_imageresultpage_label_label35, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_imageresultpage_container_container7 = lv_obj_create(ui_screen_imageresultpage);
     lv_obj_remove_style_all(ui_imageresultpage_container_container7);
@@ -77,31 +78,31 @@ void ui_screen_imageresultpage_screen_init(void)
     ui_imageresultpage_container_container8 = lv_obj_create(ui_screen_imageresultpage);
     lv_obj_remove_style_all(ui_imageresultpage_container_container8);
     lv_obj_set_width(ui_imageresultpage_container_container8, 203);
-    lv_obj_set_height(ui_imageresultpage_container_container8, 168);
+    lv_obj_set_height(ui_imageresultpage_container_container8, 225);
     lv_obj_set_x(ui_imageresultpage_container_container8, 1);
-    lv_obj_set_y(ui_imageresultpage_container_container8, 37);
+    lv_obj_set_y(ui_imageresultpage_container_container8, 39);
     lv_obj_set_align(ui_imageresultpage_container_container8, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_imageresultpage_container_container8,
                        LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_imageresultpage_image_image9 = lv_image_create(ui_imageresultpage_container_container8);
-    lv_image_set_src(ui_imageresultpage_image_image9, &ui_img_profile_png);
-    lv_obj_set_width(ui_imageresultpage_image_image9, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_imageresultpage_image_image9, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_imageresultpage_image_image9, -3);
-    lv_obj_set_y(ui_imageresultpage_image_image9, -28);
+    lv_image_set_src(ui_imageresultpage_image_image9, &ui_img_pooja_pic_png);
+    lv_obj_set_width(ui_imageresultpage_image_image9, 95);
+    lv_obj_set_height(ui_imageresultpage_image_image9, 16);
+    lv_obj_set_x(ui_imageresultpage_image_image9, -10);
+    lv_obj_set_y(ui_imageresultpage_image_image9, -19);
     lv_obj_set_align(ui_imageresultpage_image_image9, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_imageresultpage_image_image9, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_imageresultpage_image_image9, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_image_set_scale(ui_imageresultpage_image_image9, 450);
+    lv_image_set_scale(ui_imageresultpage_image_image9, 100);
 
     ui_imageresultpage_label_label37 = lv_label_create(ui_imageresultpage_container_container8);
     lv_obj_set_width(ui_imageresultpage_label_label37, 184);
     lv_obj_set_height(ui_imageresultpage_label_label37, 19);
-    lv_obj_set_x(ui_imageresultpage_label_label37, -3);
-    lv_obj_set_y(ui_imageresultpage_label_label37, 40);
+    lv_obj_set_x(ui_imageresultpage_label_label37, 0);
+    lv_obj_set_y(ui_imageresultpage_label_label37, 85);
     lv_obj_set_align(ui_imageresultpage_label_label37, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_imageresultpage_label_label37, "Mukul Dahiya");
+    lv_label_set_text(ui_imageresultpage_label_label37, "Pooja Bansal");
     lv_obj_set_style_text_align(ui_imageresultpage_label_label37, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_imageresultpage_label_label37, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 

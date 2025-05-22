@@ -11,10 +11,10 @@ void ui_screen_audiocapturepage_screen_init(void)
     lv_obj_remove_flag(ui_screen_audiocapturepage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_audiocapturepage_panel_backpannel6 = lv_obj_create(ui_screen_audiocapturepage);
-    lv_obj_set_width(ui_audiocapturepage_panel_backpannel6, 188);
+    lv_obj_set_width(ui_audiocapturepage_panel_backpannel6, 222);
     lv_obj_set_height(ui_audiocapturepage_panel_backpannel6, 50);
-    lv_obj_set_x(ui_audiocapturepage_panel_backpannel6, 2);
-    lv_obj_set_y(ui_audiocapturepage_panel_backpannel6, -101);
+    lv_obj_set_x(ui_audiocapturepage_panel_backpannel6, 0);
+    lv_obj_set_y(ui_audiocapturepage_panel_backpannel6, -127);
     lv_obj_set_align(ui_audiocapturepage_panel_backpannel6, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_audiocapturepage_panel_backpannel6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
@@ -39,12 +39,13 @@ void ui_screen_audiocapturepage_screen_init(void)
     ui_audiocapturepage_label_label38 = lv_label_create(ui_screen_audiocapturepage);
     lv_obj_set_width(ui_audiocapturepage_label_label38, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_audiocapturepage_label_label38, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_audiocapturepage_label_label38, 0);
-    lv_obj_set_y(ui_audiocapturepage_label_label38, -63);
+    lv_obj_set_x(ui_audiocapturepage_label_label38, -3);
+    lv_obj_set_y(ui_audiocapturepage_label_label38, -75);
     lv_obj_set_align(ui_audiocapturepage_label_label38, LV_ALIGN_CENTER);
     lv_label_set_text(ui_audiocapturepage_label_label38, "Capture Audio");
     lv_obj_set_style_text_color(ui_audiocapturepage_label_label38, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_audiocapturepage_label_label38, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_audiocapturepage_label_label38, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_audiocapturepage_container_container9 = lv_obj_create(ui_screen_audiocapturepage);
     lv_obj_remove_style_all(ui_audiocapturepage_container_container9);
@@ -88,8 +89,8 @@ void ui_screen_audiocapturepage_screen_init(void)
     lv_image_set_src(ui_audiocapturepage_image_image11, &ui_img_voice_png);
     lv_obj_set_width(ui_audiocapturepage_image_image11, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_audiocapturepage_image_image11, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_audiocapturepage_image_image11, -3);
-    lv_obj_set_y(ui_audiocapturepage_image_image11, -20);
+    lv_obj_set_x(ui_audiocapturepage_image_image11, -5);
+    lv_obj_set_y(ui_audiocapturepage_image_image11, -10);
     lv_obj_set_align(ui_audiocapturepage_image_image11, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_audiocapturepage_image_image11, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_audiocapturepage_image_image11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -98,18 +99,18 @@ void ui_screen_audiocapturepage_screen_init(void)
     ui_audiocapturepage_label_label40 = lv_label_create(ui_audiocapturepage_container_container10);
     lv_obj_set_width(ui_audiocapturepage_label_label40, 184);
     lv_obj_set_height(ui_audiocapturepage_label_label40, 17);
-    lv_obj_set_x(ui_audiocapturepage_label_label40, 5);
-    lv_obj_set_y(ui_audiocapturepage_label_label40, 30);
+    lv_obj_set_x(ui_audiocapturepage_label_label40, 8);
+    lv_obj_set_y(ui_audiocapturepage_label_label40, 44);
     lv_obj_set_align(ui_audiocapturepage_label_label40, LV_ALIGN_CENTER);
     lv_label_set_text(ui_audiocapturepage_label_label40, "Recording.....");
     lv_obj_set_style_text_align(ui_audiocapturepage_label_label40, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_audiocapturepage_label_label40, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_audiocapturepage_button_button12 = lv_button_create(ui_screen_audiocapturepage);
-    lv_obj_set_width(ui_audiocapturepage_button_button12, 100);
+    lv_obj_set_width(ui_audiocapturepage_button_button12, 161);
     lv_obj_set_height(ui_audiocapturepage_button_button12, 23);
-    lv_obj_set_x(ui_audiocapturepage_button_button12, -2);
-    lv_obj_set_y(ui_audiocapturepage_button_button12, 74);
+    lv_obj_set_x(ui_audiocapturepage_button_button12, 0);
+    lv_obj_set_y(ui_audiocapturepage_button_button12, 108);
     lv_obj_set_align(ui_audiocapturepage_button_button12, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_audiocapturepage_button_button12, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_audiocapturepage_button_button12, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

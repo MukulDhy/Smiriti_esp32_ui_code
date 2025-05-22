@@ -11,18 +11,18 @@ void ui_screen_wificonnpage_screen_init(void)
     lv_obj_remove_flag(ui_screen_wificonnpage, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_wificonnpage_panel_backpannel5 = lv_obj_create(ui_screen_wificonnpage);
-    lv_obj_set_width(ui_wificonnpage_panel_backpannel5, 188);
+    lv_obj_set_width(ui_wificonnpage_panel_backpannel5, 210);
     lv_obj_set_height(ui_wificonnpage_panel_backpannel5, 50);
-    lv_obj_set_x(ui_wificonnpage_panel_backpannel5, 2);
-    lv_obj_set_y(ui_wificonnpage_panel_backpannel5, -101);
+    lv_obj_set_x(ui_wificonnpage_panel_backpannel5, 0);
+    lv_obj_set_y(ui_wificonnpage_panel_backpannel5, -125);
     lv_obj_set_align(ui_wificonnpage_panel_backpannel5, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_wificonnpage_panel_backpannel5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_wificonnpage_label_back5 = lv_label_create(ui_wificonnpage_panel_backpannel5);
     lv_obj_set_width(ui_wificonnpage_label_back5, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_wificonnpage_label_back5, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_wificonnpage_label_back5, 10);
-    lv_obj_set_y(ui_wificonnpage_label_back5, 5);
+    lv_obj_set_x(ui_wificonnpage_label_back5, 12);
+    lv_obj_set_y(ui_wificonnpage_label_back5, 1);
     lv_obj_set_align(ui_wificonnpage_label_back5, LV_ALIGN_CENTER);
     lv_label_set_text(ui_wificonnpage_label_back5, "Back");
 
@@ -31,7 +31,7 @@ void ui_screen_wificonnpage_screen_init(void)
     lv_obj_set_width(ui_wificonnpage_image_image6, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_wificonnpage_image_image6, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_wificonnpage_image_image6, -27);
-    lv_obj_set_y(ui_wificonnpage_image_image6, 5);
+    lv_obj_set_y(ui_wificonnpage_image_image6, 2);
     lv_obj_set_align(ui_wificonnpage_image_image6, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_wificonnpage_image_image6, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_wificonnpage_image_image6, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -39,8 +39,8 @@ void ui_screen_wificonnpage_screen_init(void)
     ui_wificonnpage_label_label10 = lv_label_create(ui_screen_wificonnpage);
     lv_obj_set_width(ui_wificonnpage_label_label10, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_wificonnpage_label_label10, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_wificonnpage_label_label10, 4);
-    lv_obj_set_y(ui_wificonnpage_label_label10, -55);
+    lv_obj_set_x(ui_wificonnpage_label_label10, -2);
+    lv_obj_set_y(ui_wificonnpage_label_label10, -74);
     lv_obj_set_align(ui_wificonnpage_label_label10, LV_ALIGN_CENTER);
     lv_label_set_text(ui_wificonnpage_label_label10, "Wifi Conn page");
     lv_obj_set_style_text_color(ui_wificonnpage_label_label10, lv_color_hex(0x00FF17), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -103,10 +103,10 @@ void ui_screen_wificonnpage_screen_init(void)
     lv_obj_set_style_text_align(ui_wificonnpage_label_label21, LV_TEXT_ALIGN_AUTO, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_wificonnpage_button_button7 = lv_button_create(ui_screen_wificonnpage);
-    lv_obj_set_width(ui_wificonnpage_button_button7, 100);
+    lv_obj_set_width(ui_wificonnpage_button_button7, 133);
     lv_obj_set_height(ui_wificonnpage_button_button7, 23);
-    lv_obj_set_x(ui_wificonnpage_button_button7, 3);
-    lv_obj_set_y(ui_wificonnpage_button_button7, 81);
+    lv_obj_set_x(ui_wificonnpage_button_button7, -6);
+    lv_obj_set_y(ui_wificonnpage_button_button7, 101);
     lv_obj_set_align(ui_wificonnpage_button_button7, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_wificonnpage_button_button7, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_wificonnpage_button_button7, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

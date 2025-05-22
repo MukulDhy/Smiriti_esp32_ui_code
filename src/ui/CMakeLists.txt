@@ -13,8 +13,8 @@ SET(SOURCES ui_screen_wificonnectionpage1.c
     ui_helpers.c
     ui_events.cpp
     ui_img_img_back_png.c
-    ui_img_profile_png.c
     ui_img_notification_png.c
+    ui_img_pooja_pic_png.c
     ui_img_voice_png.c)
 
 add_library(ui ${SOURCES})

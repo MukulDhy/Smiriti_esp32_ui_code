@@ -21,9 +21,10 @@
 
 // Screen dimensions
 #define SCREEN_WIDTH 240
-#define SCREEN_HEIGHT 240
+#define SCREEN_HEIGHT 320
 
 // LVGL configuration
+// #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
 
 // Configuration
@@ -69,6 +70,12 @@ void update_UI()
   lastTick = millis();
 }
 
+// PROPER CALIBRATION FOR 240x320 DISPLAY
+#define TOUCH_MIN_X 493  // Left-edge raw value
+#define TOUCH_MAX_X 3545 // Right-edge raw value
+#define TOUCH_MIN_Y 418  // Top-edge raw value
+#define TOUCH_MAX_Y 3549 // Bottom-edge raw value
+
 void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
   static TS_Point lastPoint;
@@ -76,8 +83,8 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
   {
     TS_Point p = touchscreen.getPoint();
     lastPoint = p;
-    data->point.x = map(p.x, 240, 3600, 0, SCREEN_WIDTH);
-    data->point.y = map(p.y, 240, 2700, 0, SCREEN_HEIGHT);
+    data->point.x = map(p.x, TOUCH_MIN_X, TOUCH_MAX_X, 0, SCREEN_WIDTH);
+    data->point.y = map(p.y, TOUCH_MIN_Y, TOUCH_MAX_Y, 0, SCREEN_HEIGHT);
     data->state = LV_INDEV_STATE_PRESSED;
   }
   else
@@ -261,12 +268,19 @@ void setActiveArea()
   tft.writedata(0);
   tft.writedata(239);
 
-  // Row address range (40-279 for centered 240x240)
+  // // Row address range (40-279 for centered 240x240)
+  // tft.writecommand(0x2B); // PASET command
+  // tft.writedata(40 >> 8);
+  // tft.writedata(40 & 0xFF); // Start row = 40
+  // tft.writedata(279 >> 8);
+  // tft.writedata(279 & 0xFF); // End row = 279
+
+  // Row address range (0-319) - UPDATED for full 320 height
   tft.writecommand(0x2B); // PASET command
-  tft.writedata(40 >> 8);
-  tft.writedata(40 & 0xFF); // Start row = 40
-  tft.writedata(279 >> 8);
-  tft.writedata(279 & 0xFF); // End row = 279
+  tft.writedata(0 >> 8);
+  tft.writedata(0 & 0xFF); // Start row = 0
+  tft.writedata(319 >> 8);
+  tft.writedata(319 & 0xFF); // End row = 319
 }
 
 void setup()
@@ -286,8 +300,8 @@ void setup()
   // Initialize display
   tft.init();
   setActiveArea();
-  tft.setRotation(1);
-  tft.setViewport(0, 40, 240, 240);
+  tft.setRotation(0);              // Changed from 1 to 0 for portrait orientation
+  tft.setViewport(0, 0, 240, 320); // Use full screen height
   tft.fillScreen(TFT_BLACK);
 
   // Initialize LVGL
@@ -308,8 +322,8 @@ void setup()
       ;
   }
 
-  // Initialize display
-  lv_display_t *disp = lv_tft_espi_create(SCREEN_HEIGHT, SCREEN_WIDTH, draw_buf, DRAW_BUF_SIZE);
+  // Initialize display - UPDATED for correct width/height order
+  lv_display_t *disp = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, DRAW_BUF_SIZE);
   lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_0);
 
   // Initialize input device
