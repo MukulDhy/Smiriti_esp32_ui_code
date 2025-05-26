@@ -25,6 +25,8 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 
+void glow_Animation(lv_obj_t * TargetObject, int delay);
+
 // SCREEN: ui_screen_wificonnectionpage1
 void ui_screen_wificonnectionpage1_screen_init(void);
 extern lv_obj_t * ui_screen_wificonnectionpage1;
@@ -196,6 +198,7 @@ extern lv_obj_t * ui_audiocapturepage_container_container9;
 extern lv_obj_t * ui_audiocapturepage_spinner_spinner3;
 extern lv_obj_t * ui_audiocapturepage_label_label39;
 extern lv_obj_t * ui_audiocapturepage_container_container10;
+void ui_event_audiocapturepage_image_image11(lv_event_t * e);
 extern lv_obj_t * ui_audiocapturepage_image_image11;
 extern lv_obj_t * ui_audiocapturepage_label_label40;
 void ui_event_audiocapturepage_button_button12(lv_event_t * e);

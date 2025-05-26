@@ -38,6 +38,7 @@ struct Config
   const char *MQTT_PASSWORD = "Mukul@jaat123";
 } config;
 void callAlertToBackend(lv_event_t *e);
+void sendRecordingRequestToBackend(lv_event_t *e);
 // =============== MQTT MODIFICATIONS START ===============
 // Updated for single-device system with device ID 2113
 const char *mqtt_server = "02ed6b84181647639b35d467c00afbd9.s1.eu.hivemq.cloud";
@@ -45,6 +46,7 @@ const int mqtt_port = 8883;
 const char *device_id = "2113"; // Hardcoded device ID
 char status_topic[50];          // Will be "devices/2113/status"
 char command_topic[50];         // Will be "devices/2113/commands"
+char record_topic[50];
 // =============== MQTT MODIFICATIONS END ===============
 
 WiFiClientSecure espClientSecure;
@@ -221,6 +223,26 @@ void callAlertToBackend(lv_event_t *e)
   }
   // Your code here
 }
+
+void sendRecordingRequestToBackend(lv_event_t *e)
+{
+  Serial.println("Sending RECORDING REQUEST to the BACKEND ");
+  // Your code here
+  DynamicJsonDocument ackDoc(200);
+  ackDoc["device_id"] = device_id;
+  ackDoc["status"] = "sending";
+  ackDoc["record"] = "record";
+  ackDoc["timestamp"] = millis(); // Added timestamp for tracking
+
+  char ackMsg[256];
+  serializeJson(ackDoc, ackMsg);
+
+  if (!client.publish(record_topic, ackMsg))
+  {
+    Serial.println("Failed to publish acknowledgment"); // Added error handling
+  }
+}
+
 // void ui_event_alertpage_image_image12(lv_event_t *e)
 // {
 //   lv_event_code_t event_code = lv_event_get_code(e);
@@ -327,6 +349,7 @@ void setup()
   // Initialize topics for single-device system
   sprintf(status_topic, "devices/%s/status", device_id);
   sprintf(command_topic, "devices/%s/commands", device_id);
+  sprintf(record_topic, "devices/%s/record", device_id);
   // =============== END TOPIC INIT ===============
 
   // Initialize I2C bus first (for RTC)

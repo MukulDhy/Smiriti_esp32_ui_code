@@ -100,7 +100,7 @@ void ui_screen_wificonnectionpage1_screen_init(void)
     ui_wificonnectionpage1_label_title2 = lv_label_create(ui_screen_wificonnectionpage1);
     lv_obj_set_width(ui_wificonnectionpage1_label_title2, 125);
     lv_obj_set_height(ui_wificonnectionpage1_label_title2, 38);
-    lv_obj_set_x(ui_wificonnectionpage1_label_title2, -2);
+    lv_obj_set_x(ui_wificonnectionpage1_label_title2, 2);
     lv_obj_set_y(ui_wificonnectionpage1_label_title2, -123);
     lv_obj_set_align(ui_wificonnectionpage1_label_title2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_wificonnectionpage1_label_title2, "Smriti");

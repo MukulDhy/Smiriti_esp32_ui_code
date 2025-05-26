@@ -12,6 +12,7 @@ extern "C" {
 
 void callAlertToBackend(lv_event_t * e);
 void reminderCloseBtn(lv_event_t * e);
+void sendRecordingRequestToBackend(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
