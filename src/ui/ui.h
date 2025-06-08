@@ -26,6 +26,8 @@ extern "C" {
 #include "ui_events.h"
 
 void glow_Animation(lv_obj_t * TargetObject, int delay);
+void blood1_Animation(lv_obj_t * TargetObject, int delay);
+void blood2_Animation(lv_obj_t * TargetObject, int delay);
 
 // SCREEN: ui_screen_wificonnectionpage1
 void ui_screen_wificonnectionpage1_screen_init(void);
@@ -206,15 +208,92 @@ extern lv_obj_t * ui_audiocapturepage_button_button12;
 extern lv_obj_t * ui_audiocapturepage_label_label42;
 // CUSTOM VARIABLES
 
-// EVENTS
+// SCREEN: ui_screen__bloodpressure
+void ui_screen__bloodpressure_screen_init(void);
+void ui_event_screen__bloodpressure(lv_event_t * e);
+extern lv_obj_t * ui_screen__bloodpressure;
+extern lv_obj_t * ui_panel__bloodpressure__bloodgroup;
+extern lv_obj_t * ui_image__bloodpressure__blood1;
+extern lv_obj_t * ui_panel__bloodpressure__bloodfill;
+extern lv_obj_t * ui_image__bloodpressure__blood3;
+extern lv_obj_t * ui_label__bloodpressure__label2;
+extern lv_obj_t * ui_panel__bloodpressure__panel3;
+extern lv_obj_t * ui_image__bloodpressure__image8;
+extern lv_obj_t * ui_label__bloodpressure__label3;
+extern lv_obj_t * ui_label__bloodpressure__label4;
+extern lv_obj_t * ui_panel__bloodpressure__panel1;
+extern lv_obj_t * ui_label__bloodpressure__label1;
+// CUSTOM VARIABLES
 
+// SCREEN: ui_screen__spo2
+void ui_screen__spo2_screen_init(void);
+extern lv_obj_t * ui_screen__spo2;
+extern lv_obj_t * ui_panel__spo2__panel2;
+extern lv_obj_t * ui_image__spo2__image1;
+extern lv_obj_t * ui_label__spo2__label6;
+extern lv_obj_t * ui_label__spo2__label7;
+void ui_event_panel__spo2__panel4(lv_event_t * e);
+extern lv_obj_t * ui_panel__spo2__panel4;
+extern lv_obj_t * ui_label__spo2__label8;
+extern lv_obj_t * ui_label__spo2__label11;
+extern lv_obj_t * ui_label__spo2__label9;
+extern lv_obj_t * ui_label__spo2__label10;
+extern lv_obj_t * ui_label__spo2__label12;
+extern lv_obj_t * ui_label__spo2__label13;
+extern lv_obj_t * ui_label__spo2__label5;
+extern lv_obj_t * ui_panel__spo2__panel5;
+extern lv_obj_t * ui_imgbutton__spo2__imgbutton1;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_Screen__spo2;
+
+// SCREEN: ui_screen__setting
+void ui_screen__setting_screen_init(void);
+extern lv_obj_t * ui_screen__setting;
+void ui_event_panel__setting__panel7(lv_event_t * e);
+extern lv_obj_t * ui_panel__setting__panel7;
+extern lv_obj_t * ui_label__setting__label15;
+extern lv_obj_t * ui_panel__setting__panel6;
+extern lv_obj_t * ui_panel__setting__panel8;
+void ui_event_switch__setting__switch1(lv_event_t * e);
+extern lv_obj_t * ui_switch__setting__switch1;
+extern lv_obj_t * ui_image__setting__image2;
+extern lv_obj_t * ui_image__setting__image4;
+extern lv_obj_t * ui_panel__setting__panel9;
+extern lv_obj_t * ui_switch__setting__switch2;
+extern lv_obj_t * ui_image__setting__image5;
+extern lv_obj_t * ui_panel__setting__panel11;
+extern lv_obj_t * ui_switch__setting__switch4;
+extern lv_obj_t * ui_image__setting__image9;
+extern lv_obj_t * ui_panel__setting__panel10;
+extern lv_obj_t * ui_switch__setting__switch3;
+extern lv_obj_t * ui_image__setting__image7;
+extern lv_obj_t * ui_panel__setting__panel12;
+extern lv_obj_t * ui_switch__setting__switch5;
+extern lv_obj_t * ui_image__setting__image3;
+extern lv_obj_t * ui_label__setting__label14;
+extern lv_obj_t * ui_label__setting__label16;
+// CUSTOM VARIABLES
+extern lv_obj_t * uic_Screen__setting;
+
+// EVENTS
 extern lv_obj_t * ui_startevents____initial_actions0;
 
 // IMAGES AND IMAGE SETS
+// Original Smriti_UI images
 LV_IMG_DECLARE(ui_img_img_back_png);    // assets/img_back.png
 LV_IMG_DECLARE(ui_img_notification_png);    // assets/notification.png
 LV_IMG_DECLARE(ui_img_pooja_pic_png);    // assets/pooja_pic.png
 LV_IMG_DECLARE(ui_img_voice_png);    // assets/voice.png
+
+// Additional images from SquareLine_Project
+LV_IMG_DECLARE(ui_img_wave2_png);    // assets/wave2.png
+LV_IMG_DECLARE(ui_img_wave1_png);    // assets/wave1.png
+LV_IMG_DECLARE(ui_img_heart_png);    // assets/heart.png
+LV_IMG_DECLARE(ui_img_measure_png);    // assets/measure.png
+LV_IMG_DECLARE(ui_img_mute_png);    // assets/mute.png
+LV_IMG_DECLARE(ui_img_unmute_png);    // assets/unmute.png
+LV_IMG_DECLARE(ui_img_step_png);    // assets/step.png
+LV_IMG_DECLARE(ui_img_flash_png);    // assets/flash.png
 
 // UI INIT
 void ui_init(void);

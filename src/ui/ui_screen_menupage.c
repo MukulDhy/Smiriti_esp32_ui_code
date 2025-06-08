@@ -147,6 +147,10 @@ void ui_screen_menupage_screen_init(void)
     lv_obj_set_align(ui_menupage_label_label34, LV_ALIGN_CENTER);
     lv_label_set_text(ui_menupage_label_label34, "Detector");
 
+
+    
+
+
     lv_obj_add_event_cb(ui_menupage_panel_backpannel, ui_event_menupage_panel_backpannel, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_menupage_button_button1, ui_event_menupage_button_button1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_menupage_button_button2, ui_event_menupage_button_button2, LV_EVENT_ALL, NULL);
