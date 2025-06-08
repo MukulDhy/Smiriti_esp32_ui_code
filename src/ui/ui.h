@@ -87,6 +87,18 @@ extern "C"
     void ui_event_menupage_button_button10(lv_event_t *e);
     extern lv_obj_t *ui_menupage_button_button10;
     extern lv_obj_t *ui_menupage_label_label34;
+    void ui_event_menupage_button_button11(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button11;
+    extern lv_obj_t *ui_menupage_label_label19;
+    void ui_event_menupage_button_button13(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button13;
+    extern lv_obj_t *ui_menupage_label_label41;
+    void ui_event_menupage_button_button14(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button14;
+    extern lv_obj_t *ui_menupage_label_label43;
+    void ui_event_menupage_button_button15(lv_event_t *e);
+    extern lv_obj_t *ui_menupage_button_button15;
+    extern lv_obj_t *ui_menupage_label_label44;
     // CUSTOM VARIABLES
 
     // SCREEN: ui_screen_reminderpage
@@ -132,7 +144,12 @@ extern "C"
     extern lv_obj_t *ui_profilepage_label_label16;
     extern lv_obj_t *ui_profilepage_label_label17;
     extern lv_obj_t *ui_profilepage_label_label18;
+    extern lv_obj_t *ui_profilepage_label_label46;
     extern lv_obj_t *ui_profilepage_image_image2;
+    extern lv_obj_t *ui_profilepage_label_label45;
+    extern lv_obj_t *ui_profilepage_label_label47;
+    extern lv_obj_t *ui_profilepage_label_label48;
+    extern lv_obj_t *ui_profilepage_label_label49;
     // CUSTOM VARIABLES
 
     // SCREEN: ui_screen_wificonnpage
@@ -211,6 +228,7 @@ extern "C"
     // SCREEN: ui_screen_bloodpressure
     void ui_screen_bloodpressure_screen_init(void);
     void ui_event_screen_bloodpressure(lv_event_t *e);
+    void ui_event_screen_bloodpressure_pannel_backpannel1(lv_event_t *e);
     extern lv_obj_t *ui_screen_bloodpressure;
     extern lv_obj_t *ui_bloodpressurepanel_bloodgroup;
     extern lv_obj_t *ui_bloodpressureimage_blood1;
@@ -274,7 +292,7 @@ extern "C"
     extern lv_obj_t *ui_settinglabel_label16;
     // CUSTOM VARIABLES
     extern lv_obj_t *uic_Screen_setting;
-    
+
     // EVENTS
     // extern lv_obj_t *ui_startevents____initial_actions0;
 
@@ -282,6 +300,7 @@ extern "C"
     // Original Smriti_UI images
     LV_IMG_DECLARE(ui_img_img_back_png);     // assets/img_back.png
     LV_IMG_DECLARE(ui_img_notification_png); // assets/notification.png
+    LV_IMG_DECLARE(ui_img_mukul_pic_png);    // assets/mukul_pic.png
     LV_IMG_DECLARE(ui_img_pooja_pic_png);    // assets/pooja_pic.png
     LV_IMG_DECLARE(ui_img_voice_png);        // assets/voice.png
 

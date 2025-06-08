@@ -96,7 +96,7 @@ void ui_screen_profilepage_screen_init(void)
     lv_obj_set_width(ui_profilepage_label_label15, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_profilepage_label_label15, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_profilepage_label_label15, -25);
-    lv_obj_set_y(ui_profilepage_label_label15, 1);
+    lv_obj_set_y(ui_profilepage_label_label15, 3);
     lv_obj_set_align(ui_profilepage_label_label15, LV_ALIGN_CENTER);
     lv_label_set_text(ui_profilepage_label_label15, "Device ID:");
 
@@ -119,19 +119,60 @@ void ui_screen_profilepage_screen_init(void)
     ui_profilepage_label_label18 = lv_label_create(ui_profilepage_container_container1);
     lv_obj_set_width(ui_profilepage_label_label18, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_profilepage_label_label18, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_profilepage_label_label18, 35);
-    lv_obj_set_y(ui_profilepage_label_label18, 1);
+    lv_obj_set_x(ui_profilepage_label_label18, 36);
+    lv_obj_set_y(ui_profilepage_label_label18, 2);
     lv_obj_set_align(ui_profilepage_label_label18, LV_ALIGN_CENTER);
     lv_label_set_text(ui_profilepage_label_label18, "2231");
 
+    ui_profilepage_label_label46 = lv_label_create(ui_profilepage_container_container5);
+    lv_obj_set_width(ui_profilepage_label_label46, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label46, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label46, 38);
+    lv_obj_set_y(ui_profilepage_label_label46, 30);
+    lv_obj_set_align(ui_profilepage_label_label46, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label46, "Caregiver : Pooja");
+
     ui_profilepage_image_image2 = lv_image_create(ui_profilepage_container_container5);
+    lv_image_set_src(ui_profilepage_image_image2, &ui_img_mukul_pic_png);
     lv_obj_set_width(ui_profilepage_image_image2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_profilepage_image_image2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_profilepage_image_image2, -68);
-    lv_obj_set_y(ui_profilepage_image_image2, -16);
+    lv_obj_set_y(ui_profilepage_image_image2, -19);
     lv_obj_set_align(ui_profilepage_image_image2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_profilepage_image_image2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_profilepage_image_image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_profilepage_label_label45 = lv_label_create(ui_profilepage_container_container5);
+    lv_obj_set_width(ui_profilepage_label_label45, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label45, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label45, -70);
+    lv_obj_set_y(ui_profilepage_label_label45, 31);
+    lv_obj_set_align(ui_profilepage_label_label45, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label45, "Age : 35");
+
+    ui_profilepage_label_label47 = lv_label_create(ui_screen_profilepage);
+    lv_obj_set_width(ui_profilepage_label_label47, 183);
+    lv_obj_set_height(ui_profilepage_label_label47, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label47, -8);
+    lv_obj_set_y(ui_profilepage_label_label47, 69);
+    lv_obj_set_align(ui_profilepage_label_label47, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label47, "Email : mukul.patient@gmail.com");
+
+    ui_profilepage_label_label48 = lv_label_create(ui_screen_profilepage);
+    lv_obj_set_width(ui_profilepage_label_label48, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label48, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label48, -25);
+    lv_obj_set_y(ui_profilepage_label_label48, 101);
+    lv_obj_set_align(ui_profilepage_label_label48, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label48, "Phone : 9999038799");
+
+    ui_profilepage_label_label49 = lv_label_create(ui_screen_profilepage);
+    lv_obj_set_width(ui_profilepage_label_label49, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_profilepage_label_label49, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_profilepage_label_label49, 1);
+    lv_obj_set_y(ui_profilepage_label_label49, 125);
+    lv_obj_set_align(ui_profilepage_label_label49, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_profilepage_label_label49, "Emergency No: 7009825401");
 
     lv_obj_add_event_cb(ui_profilepage_panel_backpannel4, ui_event_profilepage_panel_backpannel4, LV_EVENT_ALL, NULL);
 

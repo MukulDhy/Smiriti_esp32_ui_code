@@ -49,9 +49,9 @@ void ui_screen_menupage_screen_init(void)
 
     ui_menupage_panel_panel3 = lv_obj_create(ui_screen_menupage);
     lv_obj_set_width(ui_menupage_panel_panel3, 202);
-    lv_obj_set_height(ui_menupage_panel_panel3, 177);
-    lv_obj_set_x(ui_menupage_panel_panel3, 5);
-    lv_obj_set_y(ui_menupage_panel_panel3, 28);
+    lv_obj_set_height(ui_menupage_panel_panel3, 173);
+    lv_obj_set_x(ui_menupage_panel_panel3, 4);
+    lv_obj_set_y(ui_menupage_panel_panel3, 27);
     lv_obj_set_align(ui_menupage_panel_panel3, LV_ALIGN_CENTER);
     lv_obj_set_scroll_dir(ui_menupage_panel_panel3, LV_DIR_VER);
 
@@ -74,7 +74,7 @@ void ui_screen_menupage_screen_init(void)
     lv_obj_set_width(ui_menupage_button_button2, 78);
     lv_obj_set_height(ui_menupage_button_button2, 36);
     lv_obj_set_x(ui_menupage_button_button2, 43);
-    lv_obj_set_y(ui_menupage_button_button2, -60);
+    lv_obj_set_y(ui_menupage_button_button2, -58);
     lv_obj_set_align(ui_menupage_button_button2, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_menupage_button_button2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_menupage_button_button2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
@@ -147,9 +147,69 @@ void ui_screen_menupage_screen_init(void)
     lv_obj_set_align(ui_menupage_label_label34, LV_ALIGN_CENTER);
     lv_label_set_text(ui_menupage_label_label34, "Detector");
 
+    ui_menupage_button_button11 = lv_button_create(ui_menupage_panel_panel3);
+    lv_obj_set_width(ui_menupage_button_button11, 78);
+    lv_obj_set_height(ui_menupage_button_button11, 36);
+    lv_obj_set_x(ui_menupage_button_button11, -47);
+    lv_obj_set_y(ui_menupage_button_button11, 76);
+    lv_obj_set_align(ui_menupage_button_button11, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_menupage_button_button11, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_menupage_button_button11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    
+    ui_menupage_label_label19 = lv_label_create(ui_menupage_button_button11);
+    lv_obj_set_width(ui_menupage_label_label19, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_menupage_label_label19, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_menupage_label_label19, 0);
+    lv_obj_set_y(ui_menupage_label_label19, 2);
+    lv_obj_set_align(ui_menupage_label_label19, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_menupage_label_label19, "Heart");
 
+    ui_menupage_button_button13 = lv_button_create(ui_menupage_panel_panel3);
+    lv_obj_set_width(ui_menupage_button_button13, 78);
+    lv_obj_set_height(ui_menupage_button_button13, 36);
+    lv_obj_set_x(ui_menupage_button_button13, 43);
+    lv_obj_set_y(ui_menupage_button_button13, 76);
+    lv_obj_set_align(ui_menupage_button_button13, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_menupage_button_button13, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_menupage_button_button13, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_menupage_label_label41 = lv_label_create(ui_menupage_button_button13);
+    lv_obj_set_width(ui_menupage_label_label41, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_menupage_label_label41, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_menupage_label_label41, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_menupage_label_label41, "Setting");
+
+    ui_menupage_button_button14 = lv_button_create(ui_menupage_panel_panel3);
+    lv_obj_set_width(ui_menupage_button_button14, 78);
+    lv_obj_set_height(ui_menupage_button_button14, 36);
+    lv_obj_set_x(ui_menupage_button_button14, -47);
+    lv_obj_set_y(ui_menupage_button_button14, 117);
+    lv_obj_set_align(ui_menupage_button_button14, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_menupage_button_button14, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_menupage_button_button14, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_menupage_label_label43 = lv_label_create(ui_menupage_button_button14);
+    lv_obj_set_width(ui_menupage_label_label43, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_menupage_label_label43, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_menupage_label_label43, 0);
+    lv_obj_set_y(ui_menupage_label_label43, 2);
+    lv_obj_set_align(ui_menupage_label_label43, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_menupage_label_label43, "SpO2");
+
+    ui_menupage_button_button15 = lv_button_create(ui_menupage_panel_panel3);
+    lv_obj_set_width(ui_menupage_button_button15, 78);
+    lv_obj_set_height(ui_menupage_button_button15, 36);
+    lv_obj_set_x(ui_menupage_button_button15, 43);
+    lv_obj_set_y(ui_menupage_button_button15, 118);
+    lv_obj_set_align(ui_menupage_button_button15, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_menupage_button_button15, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_menupage_button_button15, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_menupage_label_label44 = lv_label_create(ui_menupage_button_button15);
+    lv_obj_set_width(ui_menupage_label_label44, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_menupage_label_label44, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_menupage_label_label44, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_menupage_label_label44, "");
 
     lv_obj_add_event_cb(ui_menupage_panel_backpannel, ui_event_menupage_panel_backpannel, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_menupage_button_button1, ui_event_menupage_button_button1, LV_EVENT_ALL, NULL);
@@ -158,5 +218,9 @@ void ui_screen_menupage_screen_init(void)
     lv_obj_add_event_cb(ui_menupage_button_button4, ui_event_menupage_button_button4, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_menupage_button_button8, ui_event_menupage_button_button8, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_menupage_button_button10, ui_event_menupage_button_button10, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_menupage_button_button11, ui_event_menupage_button_button11, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_menupage_button_button13, ui_event_menupage_button_button13, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_menupage_button_button14, ui_event_menupage_button_button14, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_menupage_button_button15, ui_event_menupage_button_button15, LV_EVENT_ALL, NULL);
 
 }

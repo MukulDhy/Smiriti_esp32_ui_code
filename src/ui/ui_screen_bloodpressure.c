@@ -144,5 +144,6 @@ void ui_screen_bloodpressure_screen_init(void)
     lv_obj_set_style_text_font(ui_bloodpressurelabel_label1, &lv_font_montserrat_22, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_screen_bloodpressure, ui_event_screen_bloodpressure, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_bloodpressurepanel_panel1, ui_event_screen_bloodpressure_pannel_backpannel1, LV_EVENT_ALL, NULL);
 
 }

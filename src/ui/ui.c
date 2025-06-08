@@ -71,6 +71,18 @@ lv_obj_t *ui_menupage_label_label34;
 void ui_event_menupage_button_health_monitor(lv_event_t *e);
 lv_obj_t *ui_menupage_button_health_monitor;
 lv_obj_t *ui_menupage_label_health_monitor_label;
+void ui_event_menupage_button_button11(lv_event_t *e);
+lv_obj_t *ui_menupage_button_button11;
+lv_obj_t *ui_menupage_label_label19;
+void ui_event_menupage_button_button13(lv_event_t *e);
+lv_obj_t *ui_menupage_button_button13;
+lv_obj_t *ui_menupage_label_label41;
+void ui_event_menupage_button_button14(lv_event_t *e);
+lv_obj_t *ui_menupage_button_button14;
+lv_obj_t *ui_menupage_label_label43;
+void ui_event_menupage_button_button15(lv_event_t *e);
+lv_obj_t *ui_menupage_button_button15;
+lv_obj_t *ui_menupage_label_label44;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_screen_reminderpage
@@ -116,7 +128,12 @@ lv_obj_t *ui_profilepage_label_label15;
 lv_obj_t *ui_profilepage_label_label16;
 lv_obj_t *ui_profilepage_label_label17;
 lv_obj_t *ui_profilepage_label_label18;
+lv_obj_t *ui_profilepage_label_label46;
 lv_obj_t *ui_profilepage_image_image2;
+lv_obj_t *ui_profilepage_label_label45;
+lv_obj_t *ui_profilepage_label_label47;
+lv_obj_t *ui_profilepage_label_label48;
+lv_obj_t *ui_profilepage_label_label49;
 // CUSTOM VARIABLES
 
 // SCREEN: ui_screen_wificonnpage
@@ -196,6 +213,7 @@ lv_obj_t *ui_audiocapturepage_label_label42;
 // SCREEN: ui_screen_bloodpressure
 void ui_screen_bloodpressure_screen_init(void);
 void ui_event_screen_bloodpressure(lv_event_t *e);
+void ui_event_screen_bloodpressure_pannel_backpannel1(lv_event_t *e);
 lv_obj_t *ui_screen_bloodpressure;
 lv_obj_t *ui_bloodpressurepanel_bloodgroup;
 lv_obj_t *ui_bloodpressureimage_blood1;
@@ -448,6 +466,48 @@ void ui_event_menupage_button_health_monitor(lv_event_t *e)
     }
 }
 
+void ui_event_menupage_button_button11(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        _ui_screen_change(&ui_screen_bloodpressure, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_bloodpressure_screen_init);
+    }
+}
+
+void ui_event_menupage_button_button13(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        _ui_screen_change(&ui_screen_setting, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0,
+                          &ui_screen_setting_screen_init);
+    }
+}
+
+void ui_event_menupage_button_button14(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        _ui_screen_change(&ui_screen_spo2, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0, &ui_screen_spo2_screen_init);
+    }
+}
+
+void ui_event_menupage_button_button15(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        _ui_screen_change(&ui_screen_audiocapturepage, LV_SCR_LOAD_ANIM_MOVE_LEFT, 500, 0,
+                          &ui_screen_audiocapturepage_screen_init);
+    }
+}
+
 void ui_event_reminderpage_panel_backpannel2(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -574,13 +634,22 @@ void ui_event_screen_bloodpressure(lv_event_t *e)
     }
 }
 
+void ui_event_screen_bloodpressure_pannel_backpannel1(lv_event_t *e){
+     lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        _ui_screen_change(&ui_screen_menupage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_menupage_screen_init);
+    }
+}
+
 void ui_event_spo2panel_panel4(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_screen_change(&ui_screen_bloodpressure, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_bloodpressure_screen_init);
+        _ui_screen_change(&ui_screen_menupage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_menupage_screen_init);
     }
 }
 
@@ -590,7 +659,7 @@ void ui_event_settingpanel_panel7(lv_event_t *e)
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_screen_change(&ui_screen_bloodpressure, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_bloodpressure_screen_init);
+        _ui_screen_change(&ui_screen_menupage, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 500, 0, &ui_screen_menupage_screen_init);
     }
 }
 
