@@ -125,29 +125,108 @@ void log_print(lv_log_level_t level, const char *buf)
 }
 
 // THREAD-SAFE UI update function
+
 void updateUIElements(const char *title, const char *description)
 {
-  if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(100)) == pdTRUE)
+  if (!title || !description || !lvglMutex)
   {
-    // Check if we're not in the middle of rendering
-    lv_display_t *disp = lv_display_get_default();
-    if (disp && !disp->rendering_in_progress)
-    {
-      _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 500, 0, &ui_screen_reminderalert_screen_init);
+    return;
+  }
 
-      if (ui_reminderalert_label_label33)
+  // Additional validation
+  if (strlen(title) > 100 || strlen(description) > 200)
+  {
+    Serial.println("UI update strings too long");
+    return;
+  }
+
+  // Try to take mutex with timeout
+  if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(50)) == pdTRUE)
+  {
+    // CRITICAL: Check rendering state multiple times
+    lv_display_t *disp = lv_display_get_default();
+
+    // Wait for any ongoing rendering to complete
+    int renderWaitCount = 0;
+    while (disp && disp->rendering_in_progress && renderWaitCount < 10)
+    {
+      xSemaphoreGive(lvglMutex);
+      vTaskDelay(pdMS_TO_TICKS(5)); // Wait 5ms
+      renderWaitCount++;
+
+      if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(50)) != pdTRUE)
       {
-        lv_label_set_text(ui_reminderalert_label_label33, description);
+        Serial.println("Failed to retake mutex after render wait");
+        return;
       }
-      if (ui_reminderalert_label_label29)
+      disp = lv_display_get_default();
+    }
+
+    // If still rendering after wait, skip this update
+    if (disp && disp->rendering_in_progress)
+    {
+      Serial.println("Still rendering - skipping UI update");
+      xSemaphoreGive(lvglMutex);
+      return;
+    }
+
+    // Check memory before proceeding
+    if (ESP.getFreeHeap() > MIN_FREE_HEAP && disp)
+    {
+      // Safely check current screen
+      lv_obj_t *current_screen = lv_scr_act();
+
+      // Only change screen if not already on reminder alert
+      if (current_screen && current_screen != ui_screen_reminderalert)
       {
-        lv_label_set_text(ui_reminderalert_label_label29, title);
+        // Use fade animation instead of move for less processing
+        _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_screen_reminderalert_screen_init);
+
+        // Give time for screen change
+        xSemaphoreGive(lvglMutex);
+        vTaskDelay(pdMS_TO_TICKS(250)); // Wait for screen change
+
+        // Retake mutex for label updates
+        if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(50)) != pdTRUE)
+        {
+          Serial.println("Failed to retake mutex for label update");
+          return;
+        }
+      }
+
+      // Update labels with additional validation
+      if (ui_reminderalert_label_label33 && lv_obj_is_valid(ui_reminderalert_label_label33))
+      {
+        // Check if object is on current screen
+        lv_obj_t *parent = lv_obj_get_screen(ui_reminderalert_label_label33);
+        if (parent == lv_scr_act())
+        {
+          lv_label_set_text(ui_reminderalert_label_label33, description);
+        }
+      }
+
+      if (ui_reminderalert_label_label29 && lv_obj_is_valid(ui_reminderalert_label_label29))
+      {
+        // Check if object is on current screen
+        lv_obj_t *parent = lv_obj_get_screen(ui_reminderalert_label_label29);
+        if (parent == lv_scr_act())
+        {
+          lv_label_set_text(ui_reminderalert_label_label29, title);
+        }
       }
     }
+    else
+    {
+      Serial.println("Skipping UI update - low memory or invalid display");
+    }
+
     xSemaphoreGive(lvglMutex);
   }
+  else
+  {
+    Serial.println("Failed to take mutex for UI update");
+  }
 }
-
 // Optimized touchscreen handling
 void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
@@ -191,9 +270,22 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 }
 
 // SIMPLIFIED MQTT callback - NO STACK-HEAVY OPERATIONS
+// 4. Add this function to check LVGL state
+bool isLVGLSafeToUpdate()
+{
+  lv_display_t *disp = lv_display_get_default();
+  if (!disp)
+  {
+    return false;
+  }
+
+  return !disp->rendering_in_progress;
+}
+
+// 5. Enhanced callback function to prevent rendering conflicts
 void callback(char *topic, byte *payload, unsigned int length)
 {
-  // Basic validation only
+  // Basic validation
   if (!topic || !payload || length == 0 || length > 200)
   {
     return;
@@ -205,13 +297,20 @@ void callback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
+  // Check if LVGL is safe to update before queuing
+  if (!isLVGLSafeToUpdate())
+  {
+    Serial.println("LVGL not safe - skipping callback");
+    return;
+  }
+
   // Create simple string from payload
   char payloadStr[201];
   size_t copyLen = min(length, (unsigned int)200);
   memcpy(payloadStr, payload, copyLen);
   payloadStr[copyLen] = '\0';
 
-  // Simple JSON parsing - AVOID HEAVY OPERATIONS
+  // Simple JSON parsing
   char *titleStart = strstr(payloadStr, "\"title\":\"");
   char *descStart = strstr(payloadStr, "\"description\":\"");
 
@@ -219,7 +318,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if (titleStart)
   {
-    titleStart += 9; // Skip "title":"
+    titleStart += 9;
     char *titleEnd = strchr(titleStart, '"');
     if (titleEnd && (titleEnd - titleStart) < 31)
     {
@@ -230,7 +329,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if (descStart)
   {
-    descStart += 14; // Skip "description":"
+    descStart += 14;
     char *descEnd = strchr(descStart, '"');
     if (descEnd && (descEnd - descStart) < 63)
     {
@@ -240,7 +339,10 @@ void callback(char *topic, byte *payload, unsigned int length)
   }
 
   // Send to UI queue (non-blocking)
-  xQueueSend(uiUpdateQueue, &uiUpdate, 0);
+  if (xQueueSend(uiUpdateQueue, &uiUpdate, 0) != pdTRUE)
+  {
+    Serial.println("UI queue full - dropping update");
+  }
 }
 
 // Event handlers - SIMPLIFIED
@@ -298,32 +400,93 @@ void uiTask(void *parameter)
 {
   uint32_t lastTick = millis();
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  const TickType_t xFrequency = pdMS_TO_TICKS(10); // Reduced to 10ms for stability
+  const TickType_t xFrequency = pdMS_TO_TICKS(25); // Slightly increased
 
   UIUpdate uiUpdate;
+  int consecutiveFailures = 0;
+  bool renderingWarningShown = false;
 
   for (;;)
   {
-    // Handle UI updates from queue
-    while (xQueueReceive(uiUpdateQueue, &uiUpdate, 0) == pdTRUE)
+    // Check memory before processing
+    if (ESP.getFreeHeap() < CRITICAL_HEAP)
+    {
+      Serial.println("Critical memory in UI task");
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      continue;
+    }
+
+    // Handle UI updates from queue with limits
+    int updateCount = 0;
+    while (xQueueReceive(uiUpdateQueue, &uiUpdate, 0) == pdTRUE && updateCount < 2)
     {
       updateUIElements(uiUpdate.title, uiUpdate.description);
-      vTaskDelay(pdMS_TO_TICKS(10)); // Small delay after UI update
+      vTaskDelay(pdMS_TO_TICKS(100)); // Longer delay after UI update
+      updateCount++;
     }
 
-    // Update LVGL - THREAD SAFE
-    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(5)) == pdTRUE)
+    // Update LVGL with enhanced protection
+    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(30)) == pdTRUE) // Increased timeout
     {
-      uint32_t currentTick = millis();
-      lv_tick_inc(currentTick - lastTick);
-      lastTick = currentTick;
+      // Check if rendering is safe
+      lv_display_t *disp = lv_display_get_default();
 
-      lv_timer_handler();
-      xSemaphoreGive(lvglMutex);
+      if (!disp)
+      {
+        Serial.println("Display not available");
+        xSemaphoreGive(lvglMutex);
+        consecutiveFailures++;
+      }
+      else if (disp->rendering_in_progress)
+      {
+        // Just skip this iteration if rendering
+        if (!renderingWarningShown)
+        {
+          Serial.println("Skipping LVGL update - rendering in progress");
+          renderingWarningShown = true;
+        }
+        xSemaphoreGive(lvglMutex);
+      }
+      else
+      {
+        // Safe to update LVGL
+        renderingWarningShown = false;
+
+        uint32_t currentTick = millis();
+        uint32_t elapsed = currentTick - lastTick;
+
+        // Limit tick increment to prevent overflow
+        if (elapsed > 0 && elapsed < 1000)
+        {
+          lv_tick_inc(elapsed);
+        }
+        lastTick = currentTick;
+
+        // Call timer handler
+        lv_timer_handler();
+        consecutiveFailures = 0;
+
+        xSemaphoreGive(lvglMutex);
+      }
+    }
+    else
+    {
+      consecutiveFailures++;
+      if (consecutiveFailures % 10 == 0) // Log every 10th failure
+      {
+        Serial.printf("Failed to take LVGL mutex, failures: %d\n", consecutiveFailures);
+      }
     }
 
-    // Memory check every 10 seconds
-    if (millis() - systemStats.lastHeapCheck > 10000)
+    // Emergency restart if too many failures
+    if (consecutiveFailures > 50)
+    {
+      Serial.println("Too many UI failures - restarting");
+      ESP.restart();
+    }
+
+    // Memory check every 30 seconds
+    if (millis() - systemStats.lastHeapCheck > 30000)
     {
       checkMemoryUsage();
       systemStats.lastHeapCheck = millis();
@@ -334,39 +497,54 @@ void uiTask(void *parameter)
 }
 
 // Network Task - Core 0 - SIMPLIFIED
+
 void networkTask(void *parameter)
 {
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  const TickType_t xFrequency = pdMS_TO_TICKS(1000); // Reduced frequency - 1 second
+  const TickType_t xFrequency = pdMS_TO_TICKS(5000); // Increased to 5 seconds
 
   for (;;)
   {
-    // Simple WiFi check
+    // Simple WiFi check with memory protection
+    if (ESP.getFreeHeap() < CRITICAL_HEAP)
+    {
+      Serial.println("Critical memory in network task");
+      vTaskDelayUntil(&xLastWakeTime, xFrequency);
+      continue;
+    }
+
     if (WiFi.status() != WL_CONNECTED)
     {
       Serial.println("WiFi disconnected - reconnecting");
       WiFi.disconnect();
       WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-      // Simple wait
+      // Simple wait with timeout
       int attempts = 0;
-      while (WiFi.status() != WL_CONNECTED && attempts < 30)
+      while (WiFi.status() != WL_CONNECTED && attempts < 20) // Reduced attempts
       {
         vTaskDelay(pdMS_TO_TICKS(500));
         attempts++;
+
+        // Check memory during connection attempts
+        if (ESP.getFreeHeap() < CRITICAL_HEAP)
+        {
+          Serial.println("Memory critical during WiFi reconnect");
+          break;
+        }
       }
 
       if (WiFi.status() == WL_CONNECTED)
       {
         Serial.println("WiFi reconnected");
-        Serial.print("IP: ");
-        Serial.println(WiFi.localIP());
       }
     }
 
-    // Handle time updates
-    // TimeManager::handle();
-    TimeManager::update();
+    // Handle time updates ONLY if WiFi is connected and memory is OK
+    if (WiFi.status() == WL_CONNECTED && ESP.getFreeHeap() > MIN_FREE_HEAP)
+    {
+      TimeManager::update();
+    }
 
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
@@ -454,7 +632,7 @@ void setActiveArea()
 void setup()
 {
   Serial.begin(115200);
-  delay(500); // Increased initial delay
+  delay(1000); // Increased initial delay
 
   Serial.println("Starting ESP32 System...");
   Serial.printf("Free heap: %u bytes\n", ESP.getFreeHeap());
@@ -468,7 +646,6 @@ void setup()
   if (!validateBufferSize())
   {
     Serial.println("Invalid buffer size - using smaller buffer");
-    // Don't halt - continue with available memory
   }
 
   // Initialize I2C
@@ -481,6 +658,8 @@ void setup()
   tft.setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   tft.fillScreen(TFT_BLACK);
 
+  Serial.printf("Free heap after display init: %u bytes\n", ESP.getFreeHeap());
+
   // Initialize LVGL
   lv_init();
   lv_log_register_print_cb(log_print);
@@ -490,11 +669,12 @@ void setup()
   touchscreen.begin(touchscreenSPI);
   touchscreen.setRotation(0);
 
+  Serial.printf("Free heap after peripherals: %u bytes\n", ESP.getFreeHeap());
+
   // Allocate draw buffer with fallback
   draw_buf = (uint8_t *)heap_caps_malloc(DRAW_BUF_SIZE, MALLOC_CAP_DMA);
   if (!draw_buf)
   {
-    // Try smaller buffer
     size_t fallback_size = DRAW_BUF_SIZE / 2;
     draw_buf = (uint8_t *)heap_caps_malloc(fallback_size, MALLOC_CAP_DMA);
     if (!draw_buf)
@@ -504,10 +684,6 @@ void setup()
         delay(1000);
     }
     Serial.printf("Using fallback buffer: %u bytes\n", fallback_size);
-  }
-  else
-  {
-    Serial.printf("Draw buffer allocated: %u bytes\n", DRAW_BUF_SIZE);
   }
 
   // Initialize display and input
@@ -519,23 +695,11 @@ void setup()
   lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
   lv_indev_set_read_cb(indev, touchscreen_read);
 
-  // Initialize UI
-  ui_init();
+  Serial.printf("Free heap after LVGL setup: %u bytes\n", ESP.getFreeHeap());
 
-  // Initialize WiFi and Time
-  WiFiManager::begin(WIFI_SSID, WIFI_PASS);
-  TimeManager::initialize();
-  TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0);
-
-  // Configure MQTT client
-  espClientSecure.setInsecure();
-  client.setServer(mqtt_server, mqtt_port);
-  client.setCallback(callback);
-  client.setBufferSize(512); // Limit buffer size
-
-  // Create synchronization objects - SIMPLIFIED
+  // Create synchronization objects BEFORE UI init
   lvglMutex = xSemaphoreCreateMutex();
-  uiUpdateQueue = xQueueCreate(2, sizeof(UIUpdate)); // Smaller queue
+  uiUpdateQueue = xQueueCreate(2, sizeof(UIUpdate));
 
   if (!lvglMutex || !uiUpdateQueue)
   {
@@ -544,17 +708,35 @@ void setup()
       delay(1000);
   }
 
-  Serial.printf("Free heap after init: %u bytes\n", ESP.getFreeHeap());
+  // Initialize UI - AFTER sync objects are created
+  ui_init();
 
-  // Create tasks with error checking
+  Serial.printf("Free heap after UI init: %u bytes\n", ESP.getFreeHeap());
+
+  // Initialize WiFi and Time
+  WiFiManager::begin(WIFI_SSID, WIFI_PASS);
+
+  // CRITICAL: Initialize TimeManager AFTER UI is ready
+  TimeManager::initialize();
+  TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0);
+
+  // Configure MQTT client
+  espClientSecure.setInsecure();
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(callback);
+  client.setBufferSize(512);
+
+  Serial.printf("Free heap after network init: %u bytes\n", ESP.getFreeHeap());
+
+  // Create tasks with error checking - REDUCED STACK SIZES
   BaseType_t uiResult = xTaskCreatePinnedToCore(
-      uiTask, "UI_Task", UI_TASK_STACK_SIZE, NULL, 2, &uiTaskHandle, 1);
+      uiTask, "UI_Task", 10240, NULL, 2, &uiTaskHandle, 1); // Reduced
 
   BaseType_t netResult = xTaskCreatePinnedToCore(
-      networkTask, "Net_Task", NETWORK_TASK_STACK_SIZE, NULL, 1, &networkTaskHandle, 0);
+      networkTask, "Net_Task", 6144, NULL, 1, &networkTaskHandle, 0); // Reduced
 
   BaseType_t mqttResult = xTaskCreatePinnedToCore(
-      mqttTask, "MQTT_Task", MQTT_TASK_STACK_SIZE, NULL, 1, &mqttTaskHandle, 0);
+      mqttTask, "MQTT_Task", 6144, NULL, 1, &mqttTaskHandle, 0); // Reduced
 
   if (uiResult != pdPASS || netResult != pdPASS || mqttResult != pdPASS)
   {
@@ -566,8 +748,10 @@ void setup()
 
   Serial.println("All tasks created successfully");
   Serial.printf("Final free heap: %u bytes\n", ESP.getFreeHeap());
-}
 
+  // Wait for system to stabilize
+  vTaskDelay(pdMS_TO_TICKS(2000));
+}
 void loop()
 {
   // Keep minimal - just watchdog feeding

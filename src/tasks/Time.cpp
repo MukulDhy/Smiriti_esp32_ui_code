@@ -34,11 +34,9 @@ void TimeManager::initialize()
 
     initialized = true;
 
-    // Initial display update
-    updateTimeDisplay();
-    updateDateDisplay();
-
     Serial.println("TimeManager initialized successfully");
+
+    // Don't update display here - wait for proper UI initialization
 }
 
 void TimeManager::setIndianTime(int year, int month, int day, int hour, int min, int sec)
@@ -82,10 +80,6 @@ void TimeManager::setIndianTime(int year, int month, int day, int hour, int min,
         // Update our cached time info
         localtime_r(&t, &timeInfo);
         timeValid = true;
-
-        // Update display
-        updateTimeDisplay();
-        updateDateDisplay();
 
         Serial.printf("Time set to: %04d-%02d-%02d %02d:%02d:%02d IST\n",
                       year, month, day, hour, min, sec);
@@ -148,64 +142,72 @@ void TimeManager::update()
 
     timeValid = true;
 
-    // CRITICAL FIX: Only update display if we're actually on the homepage
-    // and the UI elements exist
-    lv_obj_t *current_screen = lv_scr_act();
-    if (current_screen == ui_screen_homepage)
-    {
-        updateTimeDisplay();
+    // CRITICAL FIX: Thread-safe UI updates with proper validation
+    updateTimeDisplaySafe();
 
-        // Update date only when it changes (optimization)
-        static int lastDay = -1;
-        if (timeInfo.tm_mday != lastDay)
+    // Update date only when it changes (optimization)
+    static int lastDay = -1;
+    if (timeInfo.tm_mday != lastDay)
+    {
+        updateDateDisplaySafe();
+        lastDay = timeInfo.tm_mday;
+    }
+}
+
+void TimeManager::updateTimeDisplaySafe()
+{
+    extern SemaphoreHandle_t lvglMutex;
+
+    if (!timeValid || !lvglMutex)
+    {
+        return;
+    }
+
+    // Try to take mutex with shorter timeout
+    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(10)) == pdTRUE)
+    {
+        // CRITICAL: Check rendering state first
+        lv_display_t *disp = lv_display_get_default();
+        if (disp && disp->rendering_in_progress)
         {
-            updateDateDisplay();
-            lastDay = timeInfo.tm_mday;
+            // Don't wait, just skip this update
+            xSemaphoreGive(lvglMutex);
+            return;
         }
+
+        lv_obj_t *current_screen = lv_scr_act();
+
+        // Only update if on homepage and elements exist
+        if (current_screen == ui_screen_homepage &&
+            ui_homepage_label_time &&
+            lv_obj_is_valid(ui_homepage_label_time))
+        {
+            // Additional check - make sure object is on current screen
+            lv_obj_t *parent = lv_obj_get_screen(ui_homepage_label_time);
+            if (parent == current_screen)
+            {
+                char timeStr[16];
+                int result = snprintf(timeStr, sizeof(timeStr), "%02d:%02d:%02d",
+                                      timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
+
+                if (result > 0 && result < sizeof(timeStr))
+                {
+                    lv_label_set_text(ui_homepage_label_time, timeStr);
+                }
+            }
+        }
+
+        xSemaphoreGive(lvglMutex);
     }
+    // Don't log failure here to avoid spam
 }
 
-void TimeManager::updateTimeDisplay()
+void TimeManager::updateDateDisplaySafe()
 {
-    // CRITICAL: Check if UI elements exist and are valid
-    if (!ui_homepage_label_time || !timeValid)
-    {
-        return;
-    }
+    extern SemaphoreHandle_t lvglMutex;
 
-    // Additional safety check
-    if (!lv_obj_is_valid(ui_homepage_label_time))
+    if (!timeValid || !lvglMutex)
     {
-        Serial.println("Time label is invalid");
-        return;
-    }
-
-    char timeStr[16]; // Increased buffer size for safety
-    int result = snprintf(timeStr, sizeof(timeStr), "%02d:%02d:%02d",
-                          timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
-
-    if (result > 0 && result < sizeof(timeStr))
-    {
-        lv_label_set_text(ui_homepage_label_time, timeStr);
-    }
-    else
-    {
-        Serial.println("Time string formatting failed");
-    }
-}
-
-void TimeManager::updateDateDisplay()
-{
-    // CRITICAL: Check if UI elements exist and are valid
-    if (!ui_homepage_label_date || !timeValid)
-    {
-        return;
-    }
-
-    // Additional safety check
-    if (!lv_obj_is_valid(ui_homepage_label_date))
-    {
-        Serial.println("Date label is invalid");
         return;
     }
 
@@ -216,24 +218,58 @@ void TimeManager::updateDateDisplay()
     // Validate month index
     if (timeInfo.tm_mon < 0 || timeInfo.tm_mon > 11)
     {
-        Serial.println("Invalid month value");
         return;
     }
 
-    char dateStr[32]; // Increased buffer size
-    int result = snprintf(dateStr, sizeof(dateStr), "%d %s %d",
-                          timeInfo.tm_mday,
-                          monthNames[timeInfo.tm_mon],
-                          1900 + timeInfo.tm_year);
+    // Try to take mutex with shorter timeout
+    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(10)) == pdTRUE)
+    {
+        // CRITICAL: Check rendering state first
+        lv_display_t *disp = lv_display_get_default();
+        if (disp && disp->rendering_in_progress)
+        {
+            // Don't wait, just skip this update
+            xSemaphoreGive(lvglMutex);
+            return;
+        }
 
-    if (result > 0 && result < sizeof(dateStr))
-    {
-        lv_label_set_text(ui_homepage_label_date, dateStr);
+        lv_obj_t *current_screen = lv_scr_act();
+
+        // Only update if on homepage and elements exist
+        if (current_screen == ui_screen_homepage &&
+            ui_homepage_label_date &&
+            lv_obj_is_valid(ui_homepage_label_date))
+        {
+            // Additional check - make sure object is on current screen
+            lv_obj_t *parent = lv_obj_get_screen(ui_homepage_label_date);
+            if (parent == current_screen)
+            {
+                char dateStr[32];
+                int result = snprintf(dateStr, sizeof(dateStr), "%d %s %d",
+                                      timeInfo.tm_mday,
+                                      monthNames[timeInfo.tm_mon],
+                                      1900 + timeInfo.tm_year);
+
+                if (result > 0 && result < sizeof(dateStr))
+                {
+                    lv_label_set_text(ui_homepage_label_date, dateStr);
+                }
+            }
+        }
+
+        xSemaphoreGive(lvglMutex);
     }
-    else
-    {
-        Serial.println("Date string formatting failed");
-    }
+    // Don't log failure here to avoid spam
+}
+// Legacy functions for compatibility - now call safe versions
+void TimeManager::updateTimeDisplay()
+{
+    updateTimeDisplaySafe();
+}
+
+void TimeManager::updateDateDisplay()
+{
+    updateDateDisplaySafe();
 }
 
 // Additional utility functions

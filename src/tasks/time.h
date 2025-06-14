@@ -24,7 +24,7 @@ private:
     // Thread-safe update functions
     static void updateTimeDisplaySafe();
     static void updateDateDisplaySafe();
-    
+
     // Legacy functions for compatibility
     static void updateTimeDisplay();
     static void updateDateDisplay();
