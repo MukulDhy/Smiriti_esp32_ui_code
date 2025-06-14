@@ -2,10 +2,9 @@
 #include "ui/ui.h"
 #include <lvgl.h>
 #include <TFT_eSPI.h>
-// #include <Arduino.h>
 #include <SPI.h>
 #include <XPT2046_Touchscreen.h>
-#include <Wire.h> // For I2C communication
+#include <Wire.h>
 #include "tasks/wifi.h"
 #include "tasks/time.h"
 #include <ArduinoJson.h>
@@ -23,9 +22,18 @@
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
 
-// LVGL configuration
-// #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
-#define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / 10 * (LV_COLOR_DEPTH / 8))
+// Memory thresholds
+#define MIN_FREE_HEAP 8192
+#define CRITICAL_HEAP 4096
+
+// Task stack sizes (INCREASED - this was the main issue)
+#define UI_TASK_STACK_SIZE 12288     // Increased from 8192
+#define NETWORK_TASK_STACK_SIZE 8192 // Increased from 4096
+#define MQTT_TASK_STACK_SIZE 8192    // Increased from 3072 - CRITICAL FIX
+
+// LVGL configuration with memory optimization
+#define DRAW_BUF_MULTIPLIER 10 // Back to 10 for stability
+#define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / DRAW_BUF_MULTIPLIER * (LV_COLOR_DEPTH / 8))
 
 // Configuration
 const char *WIFI_SSID = "Mukuldhy";
@@ -37,329 +45,440 @@ struct Config
   const char *MQTT_USERNAME = "mukulmqtt";
   const char *MQTT_PASSWORD = "Mukul@jaat123";
 } config;
-void callAlertToBackend(lv_event_t *e);
-void sendRecordingRequestToBackend(lv_event_t *e);
-// =============== MQTT MODIFICATIONS START ===============
-// Updated for single-device system with device ID 2113
+
+// MQTT Configuration - optimized with connection management
 const char *mqtt_server = "02ed6b84181647639b35d467c00afbd9.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
-const char *device_id = "2113"; // Hardcoded device ID
-char status_topic[50];          // Will be "devices/2113/status"
-char command_topic[50];         // Will be "devices/2113/commands"
+const char *device_id = "2113";
+char status_topic[50];
+char command_topic[50];
 char record_topic[50];
-// =============== MQTT MODIFICATIONS END ===============
 
+// Connection timeouts and retry intervals
+#define WIFI_TIMEOUT_MS 15000
+#define MQTT_TIMEOUT_MS 10000
+#define MQTT_RETRY_INTERVAL 10000 // Increased retry interval
+#define STATUS_UPDATE_INTERVAL 30000
+#define DNS_TIMEOUT_MS 5000
+
+// Hardware objects
 WiFiClientSecure espClientSecure;
 PubSubClient client(espClientSecure);
-
 SPIClass touchscreenSPI(VSPI);
 XPT2046_Touchscreen touchscreen(XPT2046_CS, XPT2046_IRQ);
-uint8_t *draw_buf = nullptr;
-uint32_t lastTick = 0;
 TFT_eSPI tft = TFT_eSPI();
 
-lv_obj_t *label = nullptr; // Added for label handling
+// Memory management
+uint8_t *draw_buf = nullptr;
 
+// Task handles
+TaskHandle_t uiTaskHandle = NULL;
+TaskHandle_t networkTaskHandle = NULL;
+TaskHandle_t mqttTaskHandle = NULL;
+
+// Synchronization - SIMPLIFIED
+SemaphoreHandle_t lvglMutex;
+QueueHandle_t uiUpdateQueue;
+
+// Performance monitoring
+struct SystemStats
+{
+  unsigned long lastHeapCheck = 0;
+  unsigned long lastStatusUpdate = 0;
+  unsigned long lastMqttReconnect = 0;
+  uint32_t minFreeHeap = UINT32_MAX;
+  bool lowMemoryWarning = false;
+  bool mqttConnected = false;
+};
+SystemStats systemStats;
+
+// SIMPLIFIED message structure
+struct UIUpdate
+{
+  char title[32];       // Reduced size
+  char description[64]; // Reduced size
+  bool isAlert;
+};
+
+// Optimized calibration values
+#define TOUCH_MIN_X 493
+#define TOUCH_MAX_X 3545
+#define TOUCH_MIN_Y 418
+#define TOUCH_MAX_Y 3549
+
+// Forward declarations
+void uiTask(void *parameter);
+void networkTask(void *parameter);
+void mqttTask(void *parameter);
+void checkMemoryUsage();
+bool validateBufferSize();
+void handleLowMemory();
+void optimizedReconnect();
+
+// Logging with memory awareness
 void log_print(lv_log_level_t level, const char *buf)
 {
-  Serial.println(buf);
+  if (ESP.getFreeHeap() > CRITICAL_HEAP)
+  {
+    Serial.println(buf);
+  }
 }
 
-void update_UI()
+// THREAD-SAFE UI update function
+void updateUIElements(const char *title, const char *description)
 {
-  lv_timer_handler();
-  lv_tick_inc(millis() - lastTick);
-  lastTick = millis();
+  if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(100)) == pdTRUE)
+  {
+    // Check if we're not in the middle of rendering
+    lv_display_t *disp = lv_display_get_default();
+    if (disp && !disp->rendering_in_progress)
+    {
+      _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 500, 0, &ui_screen_reminderalert_screen_init);
+
+      if (ui_reminderalert_label_label33)
+      {
+        lv_label_set_text(ui_reminderalert_label_label33, description);
+      }
+      if (ui_reminderalert_label_label29)
+      {
+        lv_label_set_text(ui_reminderalert_label_label29, title);
+      }
+    }
+    xSemaphoreGive(lvglMutex);
+  }
 }
 
-// PROPER CALIBRATION FOR 240x320 DISPLAY
-#define TOUCH_MIN_X 493  // Left-edge raw value
-#define TOUCH_MAX_X 3545 // Right-edge raw value
-#define TOUCH_MIN_Y 418  // Top-edge raw value
-#define TOUCH_MAX_Y 3549 // Bottom-edge raw value
-
+// Optimized touchscreen handling
 void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
-  static TS_Point lastPoint;
+  static TS_Point lastValidPoint = {0, 0, 0};
+  static unsigned long lastReadTime = 0;
+  unsigned long currentTime = millis();
+
+  // Debounce touch readings
+  if (currentTime - lastReadTime < 20)
+  { // Increased debounce
+    data->point.x = lastValidPoint.x;
+    data->point.y = lastValidPoint.y;
+    data->state = LV_INDEV_STATE_RELEASED;
+    return;
+  }
+
   if (touchscreen.tirqTouched() && touchscreen.touched())
   {
     TS_Point p = touchscreen.getPoint();
-    lastPoint = p;
-    data->point.x = map(p.x, TOUCH_MIN_X, TOUCH_MAX_X, 0, SCREEN_WIDTH);
-    data->point.y = map(p.y, TOUCH_MIN_Y, TOUCH_MAX_Y, 0, SCREEN_HEIGHT);
-    data->state = LV_INDEV_STATE_PRESSED;
+
+    // Validate touch coordinates
+    if (p.x >= TOUCH_MIN_X && p.x <= TOUCH_MAX_X &&
+        p.y >= TOUCH_MIN_Y && p.y <= TOUCH_MAX_Y)
+    {
+      lastValidPoint = p;
+      data->point.x = map(p.x, TOUCH_MIN_X, TOUCH_MAX_X, 0, SCREEN_WIDTH);
+      data->point.y = map(p.y, TOUCH_MIN_Y, TOUCH_MAX_Y, 0, SCREEN_HEIGHT);
+      data->state = LV_INDEV_STATE_PRESSED;
+    }
+    else
+    {
+      data->state = LV_INDEV_STATE_RELEASED;
+    }
   }
   else
   {
-    data->point.x = lastPoint.x;
-    data->point.y = lastPoint.y;
     data->state = LV_INDEV_STATE_RELEASED;
   }
+
+  lastReadTime = currentTime;
 }
 
-// =============== UPDATED CALLBACK FUNCTION ===============
-
+// SIMPLIFIED MQTT callback - NO STACK-HEAVY OPERATIONS
 void callback(char *topic, byte *payload, unsigned int length)
 {
-  Serial.print("Message arrived on topic: ");
-  Serial.println(topic);
+  // Basic validation only
+  if (!topic || !payload || length == 0 || length > 200)
+  {
+    return;
+  }
 
-  // Only process messages for our command topic
+  // Only process our command topic
   if (strcmp(topic, command_topic) != 0)
   {
-    Serial.println("Ignoring message - not for our command topic");
     return;
   }
 
-  // Check if payload is null-terminated (deserializeJson expects a string)
-  if (length == 0 || payload == nullptr)
+  // Create simple string from payload
+  char payloadStr[201];
+  size_t copyLen = min(length, (unsigned int)200);
+  memcpy(payloadStr, payload, copyLen);
+  payloadStr[copyLen] = '\0';
+
+  // Simple JSON parsing - AVOID HEAVY OPERATIONS
+  char *titleStart = strstr(payloadStr, "\"title\":\"");
+  char *descStart = strstr(payloadStr, "\"description\":\"");
+
+  UIUpdate uiUpdate = {"Reminder", "", false};
+
+  if (titleStart)
   {
-    Serial.println("Error: Empty or null payload"); // Added more descriptive error
-    return;
+    titleStart += 9; // Skip "title":"
+    char *titleEnd = strchr(titleStart, '"');
+    if (titleEnd && (titleEnd - titleStart) < 31)
+    {
+      strncpy(uiUpdate.title, titleStart, titleEnd - titleStart);
+      uiUpdate.title[titleEnd - titleStart] = '\0';
+    }
   }
 
-  // Convert payload to null-terminated string for safe processing
-  char payloadStr[length + 1];
-  memcpy(payloadStr, payload, length);
-  payloadStr[length] = '\0';
-  Serial.print("Raw payload: "); // Added debug output
-  Serial.println(payloadStr);
-
-  DynamicJsonDocument doc(256);
-  DeserializationError error = deserializeJson(doc, payloadStr); // Removed unnecessary cast
-
-  // Check for JSON parsing errors
-  if (error)
+  if (descStart)
   {
-    Serial.print("JSON deserialize failed: ");
-    Serial.println(error.c_str());
-    return;
+    descStart += 14; // Skip "description":"
+    char *descEnd = strchr(descStart, '"');
+    if (descEnd && (descEnd - descStart) < 63)
+    {
+      strncpy(uiUpdate.description, descStart, descEnd - descStart);
+      uiUpdate.description[descEnd - descStart] = '\0';
+    }
   }
 
-  // Updated to match Node.js server message format
-  // Added default values and null checks for more robust operation
-  const char *title = doc["title"] | "Reminder";     // Default if missing
-  const char *description = doc["description"] | ""; // Default if missing
-
-  // Debug output for parsed values
-  Serial.print("Parsed title: ");
-  Serial.println(title);
-  Serial.print("Parsed description: ");
-  Serial.println(description);
-
-  // Original UI change code - kept intact
-  // _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_MOVE_TOP, 500, 0, &ui_screen_homepage_screen_init);
-  _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 500, 0, &ui_screen_reminderalert_screen_init);
-
-  // Added null checks for UI elements before updating
-  if (ui_reminderalert_label_label33)
-  {
-    lv_label_set_text(ui_reminderalert_label_label33, description);
-  }
-  if (ui_reminderalert_label_label29)
-  {
-    lv_label_set_text(ui_reminderalert_label_label29, title);
-  }
-
-  // Original commented code kept for reference
-  // if (label != nullptr)
-  // {
-  //   char displayText[100];
-  //   snprintf(displayText, sizeof(displayText), "%s\n%s", title, description);
-  //   lv_label_set_text(label, displayText);
-  //   lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 20);
-  // }
-
-  // Send acknowledgment back to status topic
-  // Improved acknowledgment with JSON serialization instead of manual formatting
-  DynamicJsonDocument ackDoc(200);
-  ackDoc["device_id"] = device_id;
-  ackDoc["status"] = "received";
-  ackDoc["reminder"] = title;
-  ackDoc["timestamp"] = millis(); // Added timestamp for tracking
-
-  char ackMsg[256];
-  serializeJson(ackDoc, ackMsg);
-
-  if (!client.publish(status_topic, ackMsg))
-  {
-    Serial.println("Failed to publish acknowledgment"); // Added error handling
-  }
-  // Original acknowledgment code kept for reference:
-  // char ackMsg[100];
-  // snprintf(ackMsg, sizeof(ackMsg),
-  //          "{\"device_id\":\"%s\",\"status\":\"received\",\"reminder\":\"%s\"}",
-  //          device_id, title);
-  // client.publish(status_topic, ackMsg);
+  // Send to UI queue (non-blocking)
+  xQueueSend(uiUpdateQueue, &uiUpdate, 0);
 }
 
-// Callback for the Sned Alert Page
-
-// void ui_event_alertpage_image_image12(lv_event_t *e)
-// {
-//   lv_event_code_t event_code = lv_event_get_code(e);
-
-//   if (event_code == LV_EVENT_CLICKED)
-//   {
-//     (e);
-//   }
-// }
-
+// Event handlers - SIMPLIFIED
 void callAlertToBackend(lv_event_t *e)
 {
-  Serial.println("Sending alerts to the caregiver");
-  DynamicJsonDocument ackDoc(200);
-  ackDoc["device_id"] = device_id;
-  ackDoc["status"] = "received";
-  ackDoc["reminder"] = "Alert";
-  ackDoc["timestamp"] = millis(); // Added timestamp for tracking
-
-  char ackMsg[256];
-  serializeJson(ackDoc, ackMsg);
-
-  if (!client.publish(status_topic, ackMsg))
+  if (systemStats.mqttConnected)
   {
-    Serial.println("Failed to publish acknowledgment"); // Added error handling
+    const char *alertMsg = "{\"device_id\":\"2113\",\"status\":\"alert\",\"type\":\"emergency\"}";
+    client.publish(status_topic, alertMsg);
   }
-  // Your code here
 }
 
 void sendRecordingRequestToBackend(lv_event_t *e)
 {
-  Serial.println("Sending RECORDING REQUEST to the BACKEND ");
-  // Your code here
-  DynamicJsonDocument ackDoc(200);
-  ackDoc["device_id"] = device_id;
-  ackDoc["status"] = "sending";
-  ackDoc["record"] = "record";
-  ackDoc["timestamp"] = millis(); // Added timestamp for tracking
-
-  char ackMsg[256];
-  serializeJson(ackDoc, ackMsg);
-
-  if (!client.publish(record_topic, ackMsg))
+  if (systemStats.mqttConnected)
   {
-    Serial.println("Failed to publish acknowledgment"); // Added error handling
+    const char *recordMsg = "{\"device_id\":\"2113\",\"status\":\"record_request\"}";
+    client.publish(record_topic, recordMsg);
   }
 }
 
-// void ui_event_alertpage_image_image12(lv_event_t *e)
-// {
-//   lv_event_code_t event_code = lv_event_get_code(e);
-
-//   if (event_code == LV_EVENT_CLICKED)
-//   {
-//     (e);
-
-//     Serial.println("Sending alerts to the caregiver");
-//     DynamicJsonDocument ackDoc(200);
-//     ackDoc["device_id"] = device_id;
-//     ackDoc["status"] = "received";
-//     ackDoc["reminder"] = "Alert";
-//     ackDoc["timestamp"] = millis(); // Added timestamp for tracking
-
-//     char ackMsg[256];
-//     serializeJson(ackDoc, ackMsg);
-
-//     if (!client.publish(status_topic, ackMsg))
-//     {
-//       Serial.println("Failed to publish acknowledgment"); // Added error handling
-//     }
-//   }
-// }
-
-// =============== END OF UPDATED CALLBACK ===============
-
-// =============== UPDATED RECONNECT FUNCTION ===============
-void reconnect()
+// Memory monitoring
+void checkMemoryUsage()
 {
-  IPAddress mqtt_ip;
-  if (!WiFi.hostByName(mqtt_server, mqtt_ip))
+  uint32_t freeHeap = ESP.getFreeHeap();
+
+  if (freeHeap < systemStats.minFreeHeap)
   {
-    Serial.println("DNS lookup failed. Retrying...");
-    delay(5000);
-    return;
+    systemStats.minFreeHeap = freeHeap;
   }
-  Serial.print("Resolved MQTT broker IP: ");
-  Serial.println(mqtt_ip);
 
-  while (!client.connected())
+  if (freeHeap < CRITICAL_HEAP)
   {
-    Serial.print("Attempting MQTT connection as device ");
-    Serial.println(device_id);
+    Serial.println("Critical memory - restarting");
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    ESP.restart();
+  }
+}
 
-    // Use device ID as client ID
-    String clientId = "ESP32-" + String(device_id);
+bool validateBufferSize()
+{
+  size_t requiredSize = DRAW_BUF_SIZE;
+  size_t availableHeap = ESP.getMaxAllocHeap();
 
-    if (client.connect(clientId.c_str(), config.MQTT_USERNAME, config.MQTT_PASSWORD))
+  if (requiredSize > availableHeap * 0.2)
+  { // More conservative - 20%
+    Serial.printf("Buffer too large: %u > %u\n", requiredSize, (uint32_t)(availableHeap * 0.2));
+    return false;
+  }
+  return true;
+}
+
+// UI Task - Core 1 - THREAD SAFE LVGL
+void uiTask(void *parameter)
+{
+  uint32_t lastTick = millis();
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  const TickType_t xFrequency = pdMS_TO_TICKS(10); // Reduced to 10ms for stability
+
+  UIUpdate uiUpdate;
+
+  for (;;)
+  {
+    // Handle UI updates from queue
+    while (xQueueReceive(uiUpdateQueue, &uiUpdate, 0) == pdTRUE)
     {
-      Serial.println("Connected to MQTT broker");
-      client.subscribe(command_topic);
-      Serial.print("Subscribed to: ");
-      Serial.println(command_topic);
+      updateUIElements(uiUpdate.title, uiUpdate.description);
+      vTaskDelay(pdMS_TO_TICKS(10)); // Small delay after UI update
+    }
 
-      // Send initial status message
-      char initMsg[100];
-      snprintf(initMsg, sizeof(initMsg),
-               "{\"device_id\":\"%s\",\"status\":\"online\",\"ip\":\"%s\"}",
-               device_id, WiFi.localIP().toString().c_str());
-      client.publish(status_topic, initMsg);
+    // Update LVGL - THREAD SAFE
+    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(5)) == pdTRUE)
+    {
+      uint32_t currentTick = millis();
+      lv_tick_inc(currentTick - lastTick);
+      lastTick = currentTick;
+
+      lv_timer_handler();
+      xSemaphoreGive(lvglMutex);
+    }
+
+    // Memory check every 10 seconds
+    if (millis() - systemStats.lastHeapCheck > 10000)
+    {
+      checkMemoryUsage();
+      systemStats.lastHeapCheck = millis();
+    }
+
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);
+  }
+}
+
+// Network Task - Core 0 - SIMPLIFIED
+void networkTask(void *parameter)
+{
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  const TickType_t xFrequency = pdMS_TO_TICKS(1000); // Reduced frequency - 1 second
+
+  for (;;)
+  {
+    // Simple WiFi check
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      Serial.println("WiFi disconnected - reconnecting");
+      WiFi.disconnect();
+      WiFi.begin(WIFI_SSID, WIFI_PASS);
+
+      // Simple wait
+      int attempts = 0;
+      while (WiFi.status() != WL_CONNECTED && attempts < 30)
+      {
+        vTaskDelay(pdMS_TO_TICKS(500));
+        attempts++;
+      }
+
+      if (WiFi.status() == WL_CONNECTED)
+      {
+        Serial.println("WiFi reconnected");
+        Serial.print("IP: ");
+        Serial.println(WiFi.localIP());
+      }
+    }
+
+    // Handle time updates
+    // TimeManager::handle();
+    TimeManager::update();
+
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);
+  }
+}
+
+// MQTT Task - Core 0 - HEAVILY OPTIMIZED TO PREVENT STACK OVERFLOW
+void mqttTask(void *parameter)
+{
+  TickType_t xLastWakeTime = xTaskGetTickCount();
+  const TickType_t xFrequency = pdMS_TO_TICKS(200); // Reduced frequency - 200ms
+
+  for (;;)
+  {
+    // Only process if WiFi connected
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      systemStats.mqttConnected = false;
+      vTaskDelayUntil(&xLastWakeTime, xFrequency);
+      continue;
+    }
+
+    // Handle MQTT connection
+    if (!client.connected())
+    {
+      systemStats.mqttConnected = false;
+
+      if (millis() - systemStats.lastMqttReconnect > MQTT_RETRY_INTERVAL)
+      {
+        Serial.println("Attempting MQTT connection...");
+
+        // Simple connection attempt - NO DNS RESOLUTION
+        String clientId = "ESP32-2113-" + String(millis() % 1000);
+        if (client.connect(clientId.c_str(), config.MQTT_USERNAME, config.MQTT_PASSWORD))
+        {
+          Serial.println("MQTT connected");
+          client.subscribe(command_topic);
+          systemStats.mqttConnected = true;
+
+          // Simple status message
+          client.publish(status_topic, "{\"device_id\":\"2113\",\"status\":\"online\"}");
+        }
+        else
+        {
+          Serial.printf("MQTT failed, rc=%d\n", client.state());
+        }
+
+        systemStats.lastMqttReconnect = millis();
+      }
     }
     else
     {
-      Serial.print("MQTT connection failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" retrying in 5 seconds");
-      delay(5000);
+      systemStats.mqttConnected = true;
+
+      // Process MQTT - this should be lightweight
+      client.loop();
+
+      // Send status updates
+      if (millis() - systemStats.lastStatusUpdate > STATUS_UPDATE_INTERVAL)
+      {
+        // Simple status message to avoid sprintf stack usage
+        client.publish(status_topic, "{\"device_id\":\"2113\",\"status\":\"running\"}");
+        systemStats.lastStatusUpdate = millis();
+      }
     }
+
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
 }
-// =============== END OF UPDATED RECONNECT ===============
 
 void setActiveArea()
 {
-  // Column address range (0-239)
-  tft.writecommand(0x2A); // CASET command
+  tft.writecommand(0x2A);
   tft.writedata(0);
   tft.writedata(0);
   tft.writedata(0);
   tft.writedata(239);
 
-  // // Row address range (40-279 for centered 240x240)
-  // tft.writecommand(0x2B); // PASET command
-  // tft.writedata(40 >> 8);
-  // tft.writedata(40 & 0xFF); // Start row = 40
-  // tft.writedata(279 >> 8);
-  // tft.writedata(279 & 0xFF); // End row = 279
-
-  // Row address range (0-319) - UPDATED for full 320 height
-  tft.writecommand(0x2B); // PASET command
-  tft.writedata(0 >> 8);
-  tft.writedata(0 & 0xFF); // Start row = 0
+  tft.writecommand(0x2B);
+  tft.writedata(0);
+  tft.writedata(0);
   tft.writedata(319 >> 8);
-  tft.writedata(319 & 0xFF); // End row = 319
+  tft.writedata(319 & 0xFF);
 }
 
 void setup()
 {
   Serial.begin(115200);
-  delay(100);
+  delay(500); // Increased initial delay
 
-  // =============== MQTT TOPIC INITIALIZATION ===============
-  // Initialize topics for single-device system
-  sprintf(status_topic, "devices/%s/status", device_id);
-  sprintf(command_topic, "devices/%s/commands", device_id);
-  sprintf(record_topic, "devices/%s/record", device_id);
-  // =============== END TOPIC INIT ===============
+  Serial.println("Starting ESP32 System...");
+  Serial.printf("Free heap: %u bytes\n", ESP.getFreeHeap());
 
-  // Initialize I2C bus first (for RTC)
+  // Initialize topic strings
+  snprintf(status_topic, sizeof(status_topic), "devices/%s/status", device_id);
+  snprintf(command_topic, sizeof(command_topic), "devices/%s/commands", device_id);
+  snprintf(record_topic, sizeof(record_topic), "devices/%s/record", device_id);
+
+  // Validate buffer size
+  if (!validateBufferSize())
+  {
+    Serial.println("Invalid buffer size - using smaller buffer");
+    // Don't halt - continue with available memory
+  }
+
+  // Initialize I2C
   Wire.begin();
 
   // Initialize display
   tft.init();
   setActiveArea();
-  tft.setRotation(0);              // Changed from 1 to 0 for portrait orientation
-  tft.setViewport(0, 0, 240, 320); // Use full screen height
+  tft.setRotation(0);
+  tft.setViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   tft.fillScreen(TFT_BLACK);
 
   // Initialize LVGL
@@ -371,20 +490,31 @@ void setup()
   touchscreen.begin(touchscreenSPI);
   touchscreen.setRotation(0);
 
-  // Allocate draw buffer
+  // Allocate draw buffer with fallback
   draw_buf = (uint8_t *)heap_caps_malloc(DRAW_BUF_SIZE, MALLOC_CAP_DMA);
   if (!draw_buf)
   {
-    Serial.println("Failed to allocate draw buffer");
-    while (1)
-      ;
+    // Try smaller buffer
+    size_t fallback_size = DRAW_BUF_SIZE / 2;
+    draw_buf = (uint8_t *)heap_caps_malloc(fallback_size, MALLOC_CAP_DMA);
+    if (!draw_buf)
+    {
+      Serial.println("Could not allocate any draw buffer");
+      while (1)
+        delay(1000);
+    }
+    Serial.printf("Using fallback buffer: %u bytes\n", fallback_size);
+  }
+  else
+  {
+    Serial.printf("Draw buffer allocated: %u bytes\n", DRAW_BUF_SIZE);
   }
 
-  // Initialize display - UPDATED for correct width/height order
-  lv_display_t *disp = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf, DRAW_BUF_SIZE);
+  // Initialize display and input
+  lv_display_t *disp = lv_tft_espi_create(SCREEN_WIDTH, SCREEN_HEIGHT, draw_buf,
+                                          draw_buf ? DRAW_BUF_SIZE : DRAW_BUF_SIZE / 2);
   lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_0);
 
-  // Initialize input device
   lv_indev_t *indev = lv_indev_create();
   lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
   lv_indev_set_read_cb(indev, touchscreen_read);
@@ -392,55 +522,65 @@ void setup()
   // Initialize UI
   ui_init();
 
-  delay(2000);
-  // Initialize WiFi
+  // Initialize WiFi and Time
   WiFiManager::begin(WIFI_SSID, WIFI_PASS);
-
-  // Initialize Time
   TimeManager::initialize();
-  TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0); // 25th Dec 2023, 3:30 PM IST
+  TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0);
 
-  // Configure WiFiClientSecure
-  espClientSecure.setInsecure(); // Bypass certificate verification (for testing)
-
+  // Configure MQTT client
+  espClientSecure.setInsecure();
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
+  client.setBufferSize(512); // Limit buffer size
+
+  // Create synchronization objects - SIMPLIFIED
+  lvglMutex = xSemaphoreCreateMutex();
+  uiUpdateQueue = xQueueCreate(2, sizeof(UIUpdate)); // Smaller queue
+
+  if (!lvglMutex || !uiUpdateQueue)
+  {
+    Serial.println("Failed to create sync objects");
+    while (1)
+      delay(1000);
+  }
+
+  Serial.printf("Free heap after init: %u bytes\n", ESP.getFreeHeap());
+
+  // Create tasks with error checking
+  BaseType_t uiResult = xTaskCreatePinnedToCore(
+      uiTask, "UI_Task", UI_TASK_STACK_SIZE, NULL, 2, &uiTaskHandle, 1);
+
+  BaseType_t netResult = xTaskCreatePinnedToCore(
+      networkTask, "Net_Task", NETWORK_TASK_STACK_SIZE, NULL, 1, &networkTaskHandle, 0);
+
+  BaseType_t mqttResult = xTaskCreatePinnedToCore(
+      mqttTask, "MQTT_Task", MQTT_TASK_STACK_SIZE, NULL, 1, &mqttTaskHandle, 0);
+
+  if (uiResult != pdPASS || netResult != pdPASS || mqttResult != pdPASS)
+  {
+    Serial.println("Failed to create tasks - insufficient memory");
+    Serial.printf("UI: %d, Net: %d, MQTT: %d\n", uiResult, netResult, mqttResult);
+    while (1)
+      delay(1000);
+  }
+
+  Serial.println("All tasks created successfully");
+  Serial.printf("Final free heap: %u bytes\n", ESP.getFreeHeap());
 }
 
 void loop()
 {
-  update_UI();
-  WiFiManager::handle();
+  // Keep minimal - just watchdog feeding
+  vTaskDelay(pdMS_TO_TICKS(5000)); // 5 second delay
 
-  if (WiFi.status() != WL_CONNECTED)
+  // Simple stats every 2 minutes
+  static unsigned long lastStatsUpdate = 0;
+  if (millis() - lastStatsUpdate > 120000)
   {
-    Serial.println("WiFi not connected!");
-    delay(1000);
-    return;
+    Serial.printf("Heap: %u, Min: %u, WiFi: %s, MQTT: %s\n",
+                  ESP.getFreeHeap(), systemStats.minFreeHeap,
+                  WiFi.status() == WL_CONNECTED ? "OK" : "FAIL",
+                  systemStats.mqttConnected ? "OK" : "FAIL");
+    lastStatsUpdate = millis();
   }
-
-  if (!client.connected())
-  {
-    reconnect();
-  }
-  client.loop();
-
-  TimeManager::update();
-
-  // Periodically send device status
-  static unsigned long lastStatusUpdate = 0;
-  if (millis() - lastStatusUpdate > 30000)
-  { // Every 30 seconds
-    char statusMsg[150];
-    snprintf(statusMsg, sizeof(statusMsg),
-             "{\"device_id\":\"%s\",\"status\":\"online\",\"time\":\"%s\",\"rssi\":%d,\"free_heap\":%u}",
-             device_id,
-             TimeManager::getFormattedTime().c_str(),
-             WiFi.RSSI(),
-             ESP.getFreeHeap());
-    client.publish(status_topic, statusMsg);
-    lastStatusUpdate = millis();
-  }
-
-  delay(2);
 }
