@@ -26,27 +26,26 @@
 #define MIN_FREE_HEAP 8192
 #define CRITICAL_HEAP 4096
 
-// Task stack sizes (INCREASED - this was the main issue)
-#define UI_TASK_STACK_SIZE 12288     // Increased from 8192
-#define NETWORK_TASK_STACK_SIZE 8192 // Increased from 4096
-#define MQTT_TASK_STACK_SIZE 8192    // Increased from 3072 - CRITICAL FIX
+// Task stack sizes
+#define UI_TASK_STACK_SIZE 12288
+#define NETWORK_TASK_STACK_SIZE 8192
+#define MQTT_TASK_STACK_SIZE 8192
 
-// LVGL configuration with memory optimization
-#define DRAW_BUF_MULTIPLIER 10 // Back to 10 for stability
+// LVGL configuration
+#define DRAW_BUF_MULTIPLIER 10
 #define DRAW_BUF_SIZE (SCREEN_WIDTH * SCREEN_HEIGHT / DRAW_BUF_MULTIPLIER * (LV_COLOR_DEPTH / 8))
 
 // Configuration
 const char *WIFI_SSID = "Mukuldhy";
 const char *WIFI_PASS = "12345678";
 
-// Configuration structure
 struct Config
 {
   const char *MQTT_USERNAME = "mukulmqtt";
   const char *MQTT_PASSWORD = "Mukul@jaat123";
 } config;
 
-// MQTT Configuration - optimized with connection management
+// MQTT Configuration
 const char *mqtt_server = "02ed6b84181647639b35d467c00afbd9.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
 const char *device_id = "2113";
@@ -54,10 +53,10 @@ char status_topic[50];
 char command_topic[50];
 char record_topic[50];
 
-// Connection timeouts and retry intervals
+// Connection timeouts
 #define WIFI_TIMEOUT_MS 15000
 #define MQTT_TIMEOUT_MS 10000
-#define MQTT_RETRY_INTERVAL 10000 // Increased retry interval
+#define MQTT_RETRY_INTERVAL 10000
 #define STATUS_UPDATE_INTERVAL 30000
 #define DNS_TIMEOUT_MS 5000
 
@@ -76,7 +75,7 @@ TaskHandle_t uiTaskHandle = NULL;
 TaskHandle_t networkTaskHandle = NULL;
 TaskHandle_t mqttTaskHandle = NULL;
 
-// Synchronization - SIMPLIFIED
+// Synchronization
 SemaphoreHandle_t lvglMutex;
 QueueHandle_t uiUpdateQueue;
 
@@ -89,18 +88,19 @@ struct SystemStats
   uint32_t minFreeHeap = UINT32_MAX;
   bool lowMemoryWarning = false;
   bool mqttConnected = false;
+  unsigned long lastMqttMessage = 0; // Track last received message
 };
 SystemStats systemStats;
 
-// SIMPLIFIED message structure
+// UI Update structure
 struct UIUpdate
 {
-  char title[32];       // Reduced size
-  char description[64]; // Reduced size
+  char title[32];
+  char description[64];
   bool isAlert;
 };
 
-// Optimized calibration values
+// Calibration values
 #define TOUCH_MIN_X 493
 #define TOUCH_MAX_X 3545
 #define TOUCH_MIN_Y 418
@@ -115,7 +115,7 @@ bool validateBufferSize();
 void handleLowMemory();
 void optimizedReconnect();
 
-// Logging with memory awareness
+// Logging
 void log_print(lv_log_level_t level, const char *buf)
 {
   if (ESP.getFreeHeap() > CRITICAL_HEAP)
@@ -124,119 +124,143 @@ void log_print(lv_log_level_t level, const char *buf)
   }
 }
 
-// THREAD-SAFE UI update function
-
+// FIXED: Enhanced UI update function with better error handling
 void updateUIElements(const char *title, const char *description)
 {
   if (!title || !description || !lvglMutex)
   {
+    Serial.println("ERROR: Invalid parameters for UI update");
     return;
   }
 
   // Additional validation
   if (strlen(title) > 100 || strlen(description) > 200)
   {
-    Serial.println("UI update strings too long");
+    Serial.println("ERROR: UI update strings too long");
     return;
   }
 
-  // Try to take mutex with timeout
-  if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(50)) == pdTRUE)
-  {
-    // CRITICAL: Check rendering state multiple times
-    lv_display_t *disp = lv_display_get_default();
+  Serial.printf("DEBUG: Attempting UI update - Title: %s, Desc: %s\n", title, description);
 
-    // Wait for any ongoing rendering to complete
+  // Try to take mutex with timeout
+  if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(100)) == pdTRUE) // Increased timeout
+  {
+    // Check display validity
+    lv_display_t *disp = lv_display_get_default();
+    if (!disp)
+    {
+      Serial.println("ERROR: No default display available");
+      xSemaphoreGive(lvglMutex);
+      return;
+    }
+
+    // Wait for rendering to complete
     int renderWaitCount = 0;
-    while (disp && disp->rendering_in_progress && renderWaitCount < 10)
+    while (disp->rendering_in_progress && renderWaitCount < 20) // Increased wait
     {
       xSemaphoreGive(lvglMutex);
-      vTaskDelay(pdMS_TO_TICKS(5)); // Wait 5ms
+      vTaskDelay(pdMS_TO_TICKS(10));
       renderWaitCount++;
 
-      if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(50)) != pdTRUE)
+      if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(100)) != pdTRUE)
       {
-        Serial.println("Failed to retake mutex after render wait");
+        Serial.println("ERROR: Failed to retake mutex after render wait");
         return;
       }
       disp = lv_display_get_default();
     }
 
-    // If still rendering after wait, skip this update
-    if (disp && disp->rendering_in_progress)
+    if (disp->rendering_in_progress)
     {
-      Serial.println("Still rendering - skipping UI update");
+      Serial.println("WARNING: Still rendering - skipping UI update");
       xSemaphoreGive(lvglMutex);
       return;
     }
 
     // Check memory before proceeding
-    if (ESP.getFreeHeap() > MIN_FREE_HEAP && disp)
+    if (ESP.getFreeHeap() > MIN_FREE_HEAP)
     {
-      // Safely check current screen
       lv_obj_t *current_screen = lv_scr_act();
 
-      // Only change screen if not already on reminder alert
-      if (current_screen && current_screen != ui_screen_reminderalert)
+      // Switch to reminder alert screen if not already there
+      if (current_screen != ui_screen_reminderalert)
       {
-        // Use fade animation instead of move for less processing
+        Serial.println("DEBUG: Switching to reminder alert screen");
         _ui_screen_change(&ui_screen_reminderalert, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0, &ui_screen_reminderalert_screen_init);
 
         // Give time for screen change
         xSemaphoreGive(lvglMutex);
-        vTaskDelay(pdMS_TO_TICKS(250)); // Wait for screen change
+        vTaskDelay(pdMS_TO_TICKS(300));
 
-        // Retake mutex for label updates
-        if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(50)) != pdTRUE)
+        // Retake mutex
+        if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-          Serial.println("Failed to retake mutex for label update");
+          Serial.println("ERROR: Failed to retake mutex after screen change");
           return;
         }
       }
 
-      // Update labels with additional validation
+      // Update labels with validation
       if (ui_reminderalert_label_label33 && lv_obj_is_valid(ui_reminderalert_label_label33))
       {
-        // Check if object is on current screen
         lv_obj_t *parent = lv_obj_get_screen(ui_reminderalert_label_label33);
         if (parent == lv_scr_act())
         {
           lv_label_set_text(ui_reminderalert_label_label33, description);
+          Serial.println("DEBUG: Updated description label");
         }
+        else
+        {
+          Serial.println("WARNING: Description label not on current screen");
+        }
+      }
+      else
+      {
+        Serial.println("ERROR: Description label is invalid or null");
       }
 
       if (ui_reminderalert_label_label29 && lv_obj_is_valid(ui_reminderalert_label_label29))
       {
-        // Check if object is on current screen
         lv_obj_t *parent = lv_obj_get_screen(ui_reminderalert_label_label29);
         if (parent == lv_scr_act())
         {
           lv_label_set_text(ui_reminderalert_label_label29, title);
+          Serial.println("DEBUG: Updated title label");
+        }
+        else
+        {
+          Serial.println("WARNING: Title label not on current screen");
         }
       }
+      else
+      {
+        Serial.println("ERROR: Title label is invalid or null");
+      }
+
+      Serial.println("SUCCESS: UI update completed");
     }
     else
     {
-      Serial.println("Skipping UI update - low memory or invalid display");
+      Serial.printf("ERROR: Low memory - skipping UI update. Free: %u\n", ESP.getFreeHeap());
     }
 
     xSemaphoreGive(lvglMutex);
   }
   else
   {
-    Serial.println("Failed to take mutex for UI update");
+    Serial.println("ERROR: Failed to take mutex for UI update");
   }
 }
-// Optimized touchscreen handling
+
+// Touchscreen handling
 void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
   static TS_Point lastValidPoint = {0, 0, 0};
   static unsigned long lastReadTime = 0;
   unsigned long currentTime = millis();
 
-  // Debounce touch readings
   if (currentTime - lastReadTime < 20)
-  { // Increased debounce
+  {
     data->point.x = lastValidPoint.x;
     data->point.y = lastValidPoint.y;
     data->state = LV_INDEV_STATE_RELEASED;
@@ -247,7 +271,6 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
   {
     TS_Point p = touchscreen.getPoint();
 
-    // Validate touch coordinates
     if (p.x >= TOUCH_MIN_X && p.x <= TOUCH_MAX_X &&
         p.y >= TOUCH_MIN_Y && p.y <= TOUCH_MAX_Y)
     {
@@ -269,8 +292,7 @@ void touchscreen_read(lv_indev_t *indev, lv_indev_data_t *data)
   lastReadTime = currentTime;
 }
 
-// SIMPLIFIED MQTT callback - NO STACK-HEAVY OPERATIONS
-// 4. Add this function to check LVGL state
+// Check LVGL state
 bool isLVGLSafeToUpdate()
 {
   lv_display_t *disp = lv_display_get_default();
@@ -278,89 +300,211 @@ bool isLVGLSafeToUpdate()
   {
     return false;
   }
-
   return !disp->rendering_in_progress;
 }
 
-// 5. Enhanced callback function to prevent rendering conflicts
+// FIXED: Enhanced MQTT callback with better JSON parsing and debugging
 void callback(char *topic, byte *payload, unsigned int length)
 {
+  Serial.printf("DEBUG: MQTT message received - Topic: %s, Length: %u\n", topic, length);
+
   // Basic validation
-  if (!topic || !payload || length == 0 || length > 200)
+  if (!topic || !payload || length == 0 || length > 500)
   {
+    Serial.println("ERROR: Invalid MQTT message parameters");
     return;
   }
 
   // Only process our command topic
   if (strcmp(topic, command_topic) != 0)
   {
+    Serial.printf("DEBUG: Ignoring message from topic: %s\n", topic);
     return;
   }
 
-  // Check if LVGL is safe to update before queuing
-  if (!isLVGLSafeToUpdate())
-  {
-    Serial.println("LVGL not safe - skipping callback");
-    return;
-  }
+  // Update last message time
+  systemStats.lastMqttMessage = millis();
 
-  // Create simple string from payload
-  char payloadStr[201];
-  size_t copyLen = min(length, (unsigned int)200);
+  // Create null-terminated string from payload
+  char payloadStr[501];
+  size_t copyLen = min(length, (unsigned int)500);
   memcpy(payloadStr, payload, copyLen);
   payloadStr[copyLen] = '\0';
 
-  // Simple JSON parsing
-  char *titleStart = strstr(payloadStr, "\"title\":\"");
-  char *descStart = strstr(payloadStr, "\"description\":\"");
+  Serial.printf("DEBUG: Payload content: %s\n", payloadStr);
 
-  UIUpdate uiUpdate = {"Reminder", "", false};
-
-  if (titleStart)
+  // Check if LVGL is safe to update
+  if (!isLVGLSafeToUpdate())
   {
-    titleStart += 9;
-    char *titleEnd = strchr(titleStart, '"');
-    if (titleEnd && (titleEnd - titleStart) < 31)
+    Serial.println("WARNING: LVGL not safe - deferring callback");
+    vTaskDelay(pdMS_TO_TICKS(50));
+    if (!isLVGLSafeToUpdate())
     {
-      strncpy(uiUpdate.title, titleStart, titleEnd - titleStart);
-      uiUpdate.title[titleEnd - titleStart] = '\0';
+      Serial.println("ERROR: LVGL still not safe - skipping callback");
+      return;
     }
   }
 
-  if (descStart)
+  // IMPROVED JSON parsing with ArduinoJson library
+  StaticJsonDocument<512> doc;
+  DeserializationError error = deserializeJson(doc, payloadStr);
+
+  if (error)
   {
-    descStart += 14;
-    char *descEnd = strchr(descStart, '"');
-    if (descEnd && (descEnd - descStart) < 63)
+    Serial.printf("ERROR: JSON parsing failed: %s\n", error.c_str());
+
+    // Fallback to manual parsing
+    char *titleStart = strstr(payloadStr, "\"title\":\"");
+    char *descStart = strstr(payloadStr, "\"description\":\"");
+
+    UIUpdate uiUpdate = {"Reminder", "Check your schedule", false};
+
+    if (titleStart)
     {
-      strncpy(uiUpdate.description, descStart, descEnd - descStart);
-      uiUpdate.description[descEnd - descStart] = '\0';
+      titleStart += 9;
+      char *titleEnd = strchr(titleStart, '"');
+      if (titleEnd && (titleEnd - titleStart) < 31)
+      {
+        strncpy(uiUpdate.title, titleStart, titleEnd - titleStart);
+        uiUpdate.title[titleEnd - titleStart] = '\0';
+      }
+    }
+
+    if (descStart)
+    {
+      descStart += 14;
+      char *descEnd = strchr(descStart, '"');
+      if (descEnd && (descEnd - descStart) < 63)
+      {
+        strncpy(uiUpdate.description, descStart, descEnd - descStart);
+        uiUpdate.description[descEnd - descStart] = '\0';
+      }
+    }
+
+    Serial.printf("DEBUG: Manual parsing - Title: %s, Desc: %s\n", uiUpdate.title, uiUpdate.description);
+
+    // Send to UI queue
+    if (xQueueSend(uiUpdateQueue, &uiUpdate, pdMS_TO_TICKS(100)) != pdTRUE)
+    {
+      Serial.println("ERROR: UI queue full - dropping update");
+    }
+    else
+    {
+      Serial.println("SUCCESS: UI update queued (manual parsing)");
     }
   }
-
-  // Send to UI queue (non-blocking)
-  if (xQueueSend(uiUpdateQueue, &uiUpdate, 0) != pdTRUE)
+  else
   {
-    Serial.println("UI queue full - dropping update");
+    // Successful JSON parsing
+    UIUpdate uiUpdate = {"Reminder", "Check your schedule", false};
+
+    if (doc.containsKey("title"))
+    {
+      const char *title = doc["title"];
+      if (title && strlen(title) < 31)
+      {
+        strcpy(uiUpdate.title, title);
+      }
+    }
+
+    if (doc.containsKey("description"))
+    {
+      const char *description = doc["description"];
+      if (description && strlen(description) < 63)
+      {
+        strcpy(uiUpdate.description, description);
+      }
+    }
+
+    Serial.printf("DEBUG: JSON parsing success - Title: %s, Desc: %s\n", uiUpdate.title, uiUpdate.description);
+
+    // Send to UI queue
+    if (xQueueSend(uiUpdateQueue, &uiUpdate, pdMS_TO_TICKS(100)) != pdTRUE)
+    {
+      Serial.println("ERROR: UI queue full - dropping update");
+    }
+    else
+    {
+      Serial.println("SUCCESS: UI update queued (JSON parsing)");
+    }
   }
 }
 
-// Event handlers - SIMPLIFIED
+// FIXED: Event handlers with better error handling and debugging
 void callAlertToBackend(lv_event_t *e)
 {
-  if (systemStats.mqttConnected)
+  Serial.println("DEBUG: Alert button pressed");
+
+  if (!systemStats.mqttConnected)
   {
-    const char *alertMsg = "{\"device_id\":\"2113\",\"status\":\"alert\",\"type\":\"emergency\"}";
-    client.publish(status_topic, alertMsg);
+    Serial.println("ERROR: MQTT not connected - cannot send alert");
+    return;
+  }
+
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.println("ERROR: WiFi not connected - cannot send alert");
+    return;
+  }
+
+  // Create JSON document for alert
+  StaticJsonDocument<200> alertDoc;
+  alertDoc["device_id"] = device_id;
+  alertDoc["status"] = "alert";
+  alertDoc["type"] = "emergency";
+  alertDoc["timestamp"] = millis();
+
+  char alertBuffer[200];
+  size_t alertSize = serializeJson(alertDoc, alertBuffer);
+
+  Serial.printf("DEBUG: Sending alert: %s\n", alertBuffer);
+
+  bool published = client.publish(status_topic, alertBuffer, alertSize);
+  if (published)
+  {
+    Serial.println("SUCCESS: Alert sent to backend");
+  }
+  else
+  {
+    Serial.println("ERROR: Failed to publish alert");
   }
 }
 
 void sendRecordingRequestToBackend(lv_event_t *e)
 {
-  if (systemStats.mqttConnected)
+  Serial.println("DEBUG: Recording button pressed");
+
+  if (!systemStats.mqttConnected)
   {
-    const char *recordMsg = "{\"device_id\":\"2113\",\"status\":\"record_request\"}";
-    client.publish(record_topic, recordMsg);
+    Serial.println("ERROR: MQTT not connected - cannot send recording request");
+    return;
+  }
+
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.println("ERROR: WiFi not connected - cannot send recording request");
+    return;
+  }
+
+  // Create JSON document for recording request
+  StaticJsonDocument<200> recordDoc;
+  recordDoc["device_id"] = device_id;
+  recordDoc["status"] = "record_request";
+  recordDoc["timestamp"] = millis();
+
+  char recordBuffer[200];
+  size_t recordSize = serializeJson(recordDoc, recordBuffer);
+
+  Serial.printf("DEBUG: Sending recording request: %s\n", recordBuffer);
+
+  bool published = client.publish(record_topic, recordBuffer, recordSize);
+  if (published)
+  {
+    Serial.println("SUCCESS: Recording request sent to backend");
+  }
+  else
+  {
+    Serial.println("ERROR: Failed to publish recording request");
   }
 }
 
@@ -376,7 +520,7 @@ void checkMemoryUsage()
 
   if (freeHeap < CRITICAL_HEAP)
   {
-    Serial.println("Critical memory - restarting");
+    Serial.println("CRITICAL: Memory exhausted - restarting");
     vTaskDelay(pdMS_TO_TICKS(1000));
     ESP.restart();
   }
@@ -388,81 +532,79 @@ bool validateBufferSize()
   size_t availableHeap = ESP.getMaxAllocHeap();
 
   if (requiredSize > availableHeap * 0.2)
-  { // More conservative - 20%
-    Serial.printf("Buffer too large: %u > %u\n", requiredSize, (uint32_t)(availableHeap * 0.2));
+  {
+    Serial.printf("ERROR: Buffer too large: %u > %u\n", requiredSize, (uint32_t)(availableHeap * 0.2));
     return false;
   }
   return true;
 }
 
-// UI Task - Core 1 - THREAD SAFE LVGL
+// UI Task
 void uiTask(void *parameter)
 {
   uint32_t lastTick = millis();
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  const TickType_t xFrequency = pdMS_TO_TICKS(25); // Slightly increased
+  const TickType_t xFrequency = pdMS_TO_TICKS(25);
 
   UIUpdate uiUpdate;
   int consecutiveFailures = 0;
   bool renderingWarningShown = false;
+
+  Serial.println("DEBUG: UI Task started");
 
   for (;;)
   {
     // Check memory before processing
     if (ESP.getFreeHeap() < CRITICAL_HEAP)
     {
-      Serial.println("Critical memory in UI task");
+      Serial.println("CRITICAL: Low memory in UI task");
       vTaskDelay(pdMS_TO_TICKS(1000));
       continue;
     }
 
-    // Handle UI updates from queue with limits
+    // Handle UI updates from queue
     int updateCount = 0;
-    while (xQueueReceive(uiUpdateQueue, &uiUpdate, 0) == pdTRUE && updateCount < 2)
+    while (xQueueReceive(uiUpdateQueue, &uiUpdate, 0) == pdTRUE && updateCount < 3)
     {
+      Serial.printf("DEBUG: Processing UI update from queue - Title: %s\n", uiUpdate.title);
       updateUIElements(uiUpdate.title, uiUpdate.description);
-      vTaskDelay(pdMS_TO_TICKS(100)); // Longer delay after UI update
+      vTaskDelay(pdMS_TO_TICKS(100));
       updateCount++;
     }
 
-    // Update LVGL with enhanced protection
-    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(30)) == pdTRUE) // Increased timeout
+    // Update LVGL
+    if (xSemaphoreTake(lvglMutex, pdMS_TO_TICKS(30)) == pdTRUE)
     {
-      // Check if rendering is safe
       lv_display_t *disp = lv_display_get_default();
 
       if (!disp)
       {
-        Serial.println("Display not available");
+        Serial.println("ERROR: Display not available in UI task");
         xSemaphoreGive(lvglMutex);
         consecutiveFailures++;
       }
       else if (disp->rendering_in_progress)
       {
-        // Just skip this iteration if rendering
         if (!renderingWarningShown)
         {
-          Serial.println("Skipping LVGL update - rendering in progress");
+          Serial.println("DEBUG: Skipping LVGL update - rendering in progress");
           renderingWarningShown = true;
         }
         xSemaphoreGive(lvglMutex);
       }
       else
       {
-        // Safe to update LVGL
         renderingWarningShown = false;
 
         uint32_t currentTick = millis();
         uint32_t elapsed = currentTick - lastTick;
 
-        // Limit tick increment to prevent overflow
         if (elapsed > 0 && elapsed < 1000)
         {
           lv_tick_inc(elapsed);
         }
         lastTick = currentTick;
 
-        // Call timer handler
         lv_timer_handler();
         consecutiveFailures = 0;
 
@@ -472,20 +614,20 @@ void uiTask(void *parameter)
     else
     {
       consecutiveFailures++;
-      if (consecutiveFailures % 10 == 0) // Log every 10th failure
+      if (consecutiveFailures % 20 == 0)
       {
-        Serial.printf("Failed to take LVGL mutex, failures: %d\n", consecutiveFailures);
+        Serial.printf("WARNING: LVGL mutex failures: %d\n", consecutiveFailures);
       }
     }
 
     // Emergency restart if too many failures
-    if (consecutiveFailures > 50)
+    if (consecutiveFailures > 100)
     {
-      Serial.println("Too many UI failures - restarting");
+      Serial.println("CRITICAL: Too many UI failures - restarting");
       ESP.restart();
     }
 
-    // Memory check every 30 seconds
+    // Memory check
     if (millis() - systemStats.lastHeapCheck > 30000)
     {
       checkMemoryUsage();
@@ -496,51 +638,53 @@ void uiTask(void *parameter)
   }
 }
 
-// Network Task - Core 0 - SIMPLIFIED
-
+// Network Task
 void networkTask(void *parameter)
 {
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  const TickType_t xFrequency = pdMS_TO_TICKS(5000); // Increased to 5 seconds
+  const TickType_t xFrequency = pdMS_TO_TICKS(5000);
+
+  Serial.println("DEBUG: Network Task started");
 
   for (;;)
   {
-    // Simple WiFi check with memory protection
     if (ESP.getFreeHeap() < CRITICAL_HEAP)
     {
-      Serial.println("Critical memory in network task");
+      Serial.println("CRITICAL: Low memory in network task");
       vTaskDelayUntil(&xLastWakeTime, xFrequency);
       continue;
     }
 
     if (WiFi.status() != WL_CONNECTED)
     {
-      Serial.println("WiFi disconnected - reconnecting");
+      Serial.println("DEBUG: WiFi disconnected - reconnecting");
       WiFi.disconnect();
       WiFi.begin(WIFI_SSID, WIFI_PASS);
 
-      // Simple wait with timeout
       int attempts = 0;
-      while (WiFi.status() != WL_CONNECTED && attempts < 20) // Reduced attempts
+      while (WiFi.status() != WL_CONNECTED && attempts < 20)
       {
         vTaskDelay(pdMS_TO_TICKS(500));
         attempts++;
 
-        // Check memory during connection attempts
         if (ESP.getFreeHeap() < CRITICAL_HEAP)
         {
-          Serial.println("Memory critical during WiFi reconnect");
+          Serial.println("CRITICAL: Memory low during WiFi reconnect");
           break;
         }
       }
 
       if (WiFi.status() == WL_CONNECTED)
       {
-        Serial.println("WiFi reconnected");
+        Serial.printf("SUCCESS: WiFi reconnected - IP: %s\n", WiFi.localIP().toString().c_str());
+      }
+      else
+      {
+        Serial.println("ERROR: WiFi reconnection failed");
       }
     }
 
-    // Handle time updates ONLY if WiFi is connected and memory is OK
+    // Handle time updates
     if (WiFi.status() == WL_CONNECTED && ESP.getFreeHeap() > MIN_FREE_HEAP)
     {
       TimeManager::update();
@@ -550,11 +694,13 @@ void networkTask(void *parameter)
   }
 }
 
-// MQTT Task - Core 0 - HEAVILY OPTIMIZED TO PREVENT STACK OVERFLOW
+// MQTT Task - Enhanced with better debugging
 void mqttTask(void *parameter)
 {
   TickType_t xLastWakeTime = xTaskGetTickCount();
-  const TickType_t xFrequency = pdMS_TO_TICKS(200); // Reduced frequency - 200ms
+  const TickType_t xFrequency = pdMS_TO_TICKS(200);
+
+  Serial.println("DEBUG: MQTT Task started");
 
   for (;;)
   {
@@ -573,22 +719,35 @@ void mqttTask(void *parameter)
 
       if (millis() - systemStats.lastMqttReconnect > MQTT_RETRY_INTERVAL)
       {
-        Serial.println("Attempting MQTT connection...");
+        Serial.println("DEBUG: Attempting MQTT connection...");
 
-        // Simple connection attempt - NO DNS RESOLUTION
-        String clientId = "ESP32-2113-" + String(millis() % 1000);
+        String clientId = "ESP32-2113-" + String(millis() % 10000);
         if (client.connect(clientId.c_str(), config.MQTT_USERNAME, config.MQTT_PASSWORD))
         {
-          Serial.println("MQTT connected");
-          client.subscribe(command_topic);
+          Serial.println("SUCCESS: MQTT connected");
+
+          // Subscribe to command topic
+          bool subscribed = client.subscribe(command_topic);
+          Serial.printf("DEBUG: Subscription to %s: %s\n", command_topic, subscribed ? "SUCCESS" : "FAILED");
+
           systemStats.mqttConnected = true;
 
-          // Simple status message
-          client.publish(status_topic, "{\"device_id\":\"2113\",\"status\":\"online\"}");
+          // Send online status
+          StaticJsonDocument<100> onlineDoc;
+          onlineDoc["device_id"] = device_id;
+          onlineDoc["status"] = "online";
+          onlineDoc["timestamp"] = millis();
+
+          char onlineBuffer[100];
+          serializeJson(onlineDoc, onlineBuffer);
+
+          bool published = client.publish(status_topic, onlineBuffer);
+          Serial.printf("DEBUG: Online status published: %s\n", published ? "SUCCESS" : "FAILED");
         }
         else
         {
-          Serial.printf("MQTT failed, rc=%d\n", client.state());
+          Serial.printf("ERROR: MQTT connection failed, rc=%d\n", client.state());
+          Serial.println("MQTT Error codes: -4=timeout, -3=connection lost, -2=connect failed, -1=disconnected, 1=bad protocol, 2=bad client id, 3=unavailable, 4=bad credentials, 5=unauthorized");
         }
 
         systemStats.lastMqttReconnect = millis();
@@ -598,14 +757,25 @@ void mqttTask(void *parameter)
     {
       systemStats.mqttConnected = true;
 
-      // Process MQTT - this should be lightweight
+      // Process MQTT messages
       client.loop();
 
       // Send status updates
       if (millis() - systemStats.lastStatusUpdate > STATUS_UPDATE_INTERVAL)
       {
-        // Simple status message to avoid sprintf stack usage
-        client.publish(status_topic, "{\"device_id\":\"2113\",\"status\":\"running\"}");
+        StaticJsonDocument<150> statusDoc;
+        statusDoc["device_id"] = device_id;
+        statusDoc["status"] = "running";
+        statusDoc["free_heap"] = ESP.getFreeHeap();
+        statusDoc["uptime"] = millis();
+        statusDoc["last_message"] = systemStats.lastMqttMessage;
+
+        char statusBuffer[150];
+        serializeJson(statusDoc, statusBuffer);
+
+        bool published = client.publish(status_topic, statusBuffer);
+        Serial.printf("DEBUG: Status update published: %s\n", published ? "SUCCESS" : "FAILED");
+
         systemStats.lastStatusUpdate = millis();
       }
     }
@@ -632,20 +802,25 @@ void setActiveArea()
 void setup()
 {
   Serial.begin(115200);
-  delay(1000); // Increased initial delay
+  delay(1000);
 
-  Serial.println("Starting ESP32 System...");
-  Serial.printf("Free heap: %u bytes\n", ESP.getFreeHeap());
+  Serial.println("=== ESP32 System Starting ===");
+  Serial.printf("Initial free heap: %u bytes\n", ESP.getFreeHeap());
 
   // Initialize topic strings
   snprintf(status_topic, sizeof(status_topic), "devices/%s/status", device_id);
   snprintf(command_topic, sizeof(command_topic), "devices/%s/commands", device_id);
   snprintf(record_topic, sizeof(record_topic), "devices/%s/record", device_id);
 
+  Serial.printf("DEBUG: Topics initialized:\n");
+  Serial.printf("  Status: %s\n", status_topic);
+  Serial.printf("  Command: %s\n", command_topic);
+  Serial.printf("  Record: %s\n", record_topic);
+
   // Validate buffer size
   if (!validateBufferSize())
   {
-    Serial.println("Invalid buffer size - using smaller buffer");
+    Serial.println("WARNING: Using smaller buffer size");
   }
 
   // Initialize I2C
@@ -671,7 +846,7 @@ void setup()
 
   Serial.printf("Free heap after peripherals: %u bytes\n", ESP.getFreeHeap());
 
-  // Allocate draw buffer with fallback
+  // Allocate draw buffer
   draw_buf = (uint8_t *)heap_caps_malloc(DRAW_BUF_SIZE, MALLOC_CAP_DMA);
   if (!draw_buf)
   {
@@ -679,11 +854,11 @@ void setup()
     draw_buf = (uint8_t *)heap_caps_malloc(fallback_size, MALLOC_CAP_DMA);
     if (!draw_buf)
     {
-      Serial.println("Could not allocate any draw buffer");
+      Serial.println("CRITICAL: Could not allocate draw buffer");
       while (1)
         delay(1000);
     }
-    Serial.printf("Using fallback buffer: %u bytes\n", fallback_size);
+    Serial.printf("WARNING: Using fallback buffer: %u bytes\n", fallback_size);
   }
 
   // Initialize display and input
@@ -699,16 +874,18 @@ void setup()
 
   // Create synchronization objects BEFORE UI init
   lvglMutex = xSemaphoreCreateMutex();
-  uiUpdateQueue = xQueueCreate(2, sizeof(UIUpdate));
+  uiUpdateQueue = xQueueCreate(5, sizeof(UIUpdate)); // Increased queue size
 
   if (!lvglMutex || !uiUpdateQueue)
   {
-    Serial.println("Failed to create sync objects");
+    Serial.println("CRITICAL: Failed to create sync objects");
     while (1)
       delay(1000);
   }
 
-  // Initialize UI - AFTER sync objects are created
+  Serial.println("DEBUG: Synchronization objects created");
+
+  // Initialize UI
   ui_init();
 
   Serial.printf("Free heap after UI init: %u bytes\n", ESP.getFreeHeap());
@@ -716,7 +893,25 @@ void setup()
   // Initialize WiFi and Time
   WiFiManager::begin(WIFI_SSID, WIFI_PASS);
 
-  // CRITICAL: Initialize TimeManager AFTER UI is ready
+  // Wait for WiFi connection
+  int wifiAttempts = 0;
+  while (WiFi.status() != WL_CONNECTED && wifiAttempts < 20)
+  {
+    delay(500);
+    Serial.print(".");
+    wifiAttempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.printf("\nSUCCESS: WiFi connected - IP: %s\n", WiFi.localIP().toString().c_str());
+  }
+  else
+  {
+    Serial.println("\nERROR: WiFi connection failed");
+  }
+
+  // Initialize TimeManager
   TimeManager::initialize();
   TimeManager::setIndianTime(2025, 4, 1, 19, 4, 0);
 
@@ -724,47 +919,74 @@ void setup()
   espClientSecure.setInsecure();
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
-  client.setBufferSize(512);
+  client.setBufferSize(1024);  // Increased buffer size
+  client.setSocketTimeout(10); // 10 second timeout
 
   Serial.printf("Free heap after network init: %u bytes\n", ESP.getFreeHeap());
 
-  // Create tasks with error checking - REDUCED STACK SIZES
+  // Create tasks with error checking
   BaseType_t uiResult = xTaskCreatePinnedToCore(
-      uiTask, "UI_Task", 10240, NULL, 2, &uiTaskHandle, 1); // Reduced
+      uiTask, "UI_Task", UI_TASK_STACK_SIZE, NULL, 2, &uiTaskHandle, 1);
 
   BaseType_t netResult = xTaskCreatePinnedToCore(
-      networkTask, "Net_Task", 6144, NULL, 1, &networkTaskHandle, 0); // Reduced
+      networkTask, "Net_Task", NETWORK_TASK_STACK_SIZE, NULL, 1, &networkTaskHandle, 0);
 
   BaseType_t mqttResult = xTaskCreatePinnedToCore(
-      mqttTask, "MQTT_Task", 6144, NULL, 1, &mqttTaskHandle, 0); // Reduced
+      mqttTask, "MQTT_Task", MQTT_TASK_STACK_SIZE, NULL, 1, &mqttTaskHandle, 0);
 
   if (uiResult != pdPASS || netResult != pdPASS || mqttResult != pdPASS)
   {
-    Serial.println("Failed to create tasks - insufficient memory");
+    Serial.println("CRITICAL: Failed to create tasks");
     Serial.printf("UI: %d, Net: %d, MQTT: %d\n", uiResult, netResult, mqttResult);
     while (1)
       delay(1000);
   }
 
-  Serial.println("All tasks created successfully");
+  Serial.println("SUCCESS: All tasks created");
   Serial.printf("Final free heap: %u bytes\n", ESP.getFreeHeap());
 
-  // Wait for system to stabilize
-  vTaskDelay(pdMS_TO_TICKS(2000));
+  // Test UI update after everything is initialized
+  vTaskDelay(pdMS_TO_TICKS(3000));
+  Serial.println("DEBUG: Testing initial UI update");
+  updateUIElements("System Ready", "All systems initialized successfully");
+
+  Serial.println("=== Setup Complete ===");
 }
+
 void loop()
 {
-  // Keep minimal - just watchdog feeding
-  vTaskDelay(pdMS_TO_TICKS(5000)); // 5 second delay
+  // Keep minimal - just watchdog feeding and diagnostics
+  vTaskDelay(pdMS_TO_TICKS(5000));
 
-  // Simple stats every 2 minutes
+  // Enhanced diagnostics every 2 minutes
   static unsigned long lastStatsUpdate = 0;
   if (millis() - lastStatsUpdate > 120000)
   {
-    Serial.printf("Heap: %u, Min: %u, WiFi: %s, MQTT: %s\n",
-                  ESP.getFreeHeap(), systemStats.minFreeHeap,
-                  WiFi.status() == WL_CONNECTED ? "OK" : "FAIL",
-                  systemStats.mqttConnected ? "OK" : "FAIL");
+    Serial.println("=== System Status ===");
+    Serial.printf("Heap: %u bytes (min: %u)\n", ESP.getFreeHeap(), systemStats.minFreeHeap);
+    Serial.printf("WiFi: %s (RSSI: %d)\n",
+                  WiFi.status() == WL_CONNECTED ? "Connected" : "Disconnected",
+                  WiFi.status() == WL_CONNECTED ? WiFi.RSSI() : 0);
+    Serial.printf("MQTT: %s (last msg: %lu ms ago)\n",
+                  systemStats.mqttConnected ? "Connected" : "Disconnected",
+                  systemStats.lastMqttMessage > 0 ? millis() - systemStats.lastMqttMessage : 0);
+    Serial.printf("Uptime: %lu seconds\n", millis() / 1000);
+
+    // Check task status
+    if (uiTaskHandle && eTaskGetState(uiTaskHandle) == eDeleted)
+    {
+      Serial.println("ERROR: UI Task has been deleted!");
+    }
+    if (mqttTaskHandle && eTaskGetState(mqttTaskHandle) == eDeleted)
+    {
+      Serial.println("ERROR: MQTT Task has been deleted!");
+    }
+    if (networkTaskHandle && eTaskGetState(networkTaskHandle) == eDeleted)
+    {
+      Serial.println("ERROR: Network Task has been deleted!");
+    }
+
+    Serial.println("===================");
     lastStatsUpdate = millis();
   }
 }
